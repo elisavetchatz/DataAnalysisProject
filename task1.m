@@ -73,15 +73,21 @@ observed_with = histcounts(ed_with_tms, bin_edges);
 
 % Expected frequencies for each bin
 expected_without_invgauss = diff(cdf(dist_without_tms_invgauss, bin_edges))*length(ed_without_tms);
-expected_with_invgauss = diff(cdf(dist_with_tms_invgauss, bin_edges))*length(ed_with_tms);    
+expected_with_invgauss = diff(cdf(dist_with_tms_invgauss, bin_edges))*length(ed_with_tms);  
+
+expected_without_normal= diff(cdf(dist_without_tms_normal, bin_edges))*length(ed_without_tms);
+expected_with_normal = diff(cdf(dist_with_tms_normal, bin_edges))*length(ed_with_tms);
+
+expected_without_exp= diff(cdf(dist_without_tms_exp, bin_edges))*length(ed_without_tms);
+expected_with_exp = diff(cdf(dist_with_tms_exp, bin_edges))*length(ed_with_tms);
 
 % Check the goodness of fit of the normal, exponential and gamma distributions
 % Chi-Square Statistics for each distribution for both with and without TMS
-chi2_without = sum((observed_without - expected_without_invgauss).^2 ./ expected_without_invgauss);
+chi2_without = sum((observed_without - expected_without_exp).^2 ./ expected_without_exp);
 df_without = length(observed_without) - 2; % degrees of freedom
 p_without = 1 - chi2cdf(chi2_without, df_without); % p-value
 
-chi2_with = sum((observed_with - expected_with_invgauss).^2 ./ expected_with_invgauss);
+chi2_with = sum((observed_with - expected_with_exp).^2 ./ expected_with_exp);
 df_with = length(observed_with) - 2; % degrees of freedom
 p_with = 1 - chi2cdf(chi2_with, df_with); % p-value 
 
