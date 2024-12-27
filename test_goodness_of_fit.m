@@ -20,7 +20,7 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
         expected_count = fitted_pdf * length(data) * diff(bin_edges(1:2)); % Multiply by the total number of data points
 
         % Perform Chi-squared goodness-of-fit test using chi2gof
-        [h, p, stats] = chi2gof(observed_count, 'Expected', expected_count, 'nbins', num_bins -1 );
+        [h, p, stats] = chi2gof(data, 'Expected', expected_count, 'nbins', num_bins -1 );
 
         % Store the Chi-squared statistic and p-value
         chi_squared(i) = stats.chi2stat;
