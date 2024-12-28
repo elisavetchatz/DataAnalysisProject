@@ -81,10 +81,3 @@ fprintf('Acceptance of hypothesis for Coil Code 0 with parametric control: %d\n'
 % flexible and can handle data variations, while the parametric
 % Chi-squared test is stricter and requires the data to fit the 
 % exponential distribution more closely.
-
-%PLOTS
-%   The histogram for Coil Code 1 closely matches the exponential distribution. 
-%Similarly, the Q-Q plot indicates that the data for Coil Code 1 follows the 
-%exponential distribution, supporting the intial hypothesis. 
-%   For Coil Code 0, the data do not show a similar trend, as the deviation from 
-% the diagonal in the Q-Q plot is larger, suggesting a less accurate fit.
