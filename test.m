@@ -13,7 +13,7 @@ ED_without_TMS = ED_without_TMS(~isnan(ED_without_TMS));
 
 
 % List of distributions to test
-dist_names = {'BirnbaumSaunders', 'Burr', 'Exponential', 'Extreme Value', 'Gamma', 'Generalized Extreme Value', 'Generalized Pareto', 'Half Normal', 'InverseGaussian', 'Kernel', 'Logistic', 'Loglogistic', 'Lognormal', 'Nakagami', 'Normal', 'Poisson', 'Rayleigh', 'Rician', 'tLocationScale', 'Weibull'};
+dist_names = {'BirnbaumSaunders', 'Burr', 'Exponential', 'Extreme Value', 'Gamma', 'Generalized Extreme Value', 'Generalized Pareto', 'Half Normal', 'InverseGaussian', 'Logistic', 'Loglogistic', 'Lognormal', 'Nakagami', 'Normal', 'Poisson', 'Rayleigh', 'Rician', 'tLocationScale', 'Weibull'};
 
 warning('off', 'all'); % Suppress warnings for better output readability
 % Perform goodness of fit test for ED duration with TMS
@@ -23,14 +23,16 @@ warning('off', 'all'); % Suppress warnings for better output readability
 
 num_bins = ceil(sqrt(length(ED_with_TMS))); % Number of bins (rule of thumb)
 bin_edges = linspace(min([ED_with_TMS; ED_without_TMS]), max([ED_with_TMS; ED_without_TMS]), num_bins);
-% Display histogram of the data and the best fit distribution
-figure;
-% Empirical PDFs for ED duration with and without TMS
-histogram(ED_with_TMS, Normalization='pdf', BinEdges=bin_edges);
-hold on;
-histogram(ED_without_TMS, Normalization='pdf', BinEdges=bin_edges);
-% Display the best fit distribution for ED duration with and without TMS
-plot(bin_edges, pdf(best_fit_with, bin_edges), 'r', 'LineWidth', 1.5);
-plot(bin_edges, pdf(best_fit_without, bin_edges), 'b', 'LineWidth', 1.5);
-legend('ED with TMS', 'ED without TMS', 'Best fit with TMS', 'Best fit without TMS');
+
+
+ED_with_TMS_struct = struct('data', ED_with_TMS, 'dataname', 'ED with TMS', 'color', 'r');
+ED_without_TMS_struct = struct('data', ED_without_TMS, 'dataname', 'ED without TMS', 'color', 'b');
+
+plot_with_best_fit(ED_with_TMS_struct, bin_edges, best_fit_with);
+plot_with_best_fit(ED_without_TMS_struct, bin_edges, best_fit_without);
+
+
+legend('show')
 hold off;
+
+
