@@ -6,8 +6,7 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
 
     % Calculate histogram data
     num_bins = ceil(sqrt(length(data)));          % Number of bins (rule of thumb)
-    bin_edges = linspace(min(data), max(data), num_bins); % Bin edges
-    observed_count = histcounts(data, bin_edges); % Observed counts per bin
+    bin_edges = linspace(min(data), max(data), num_bins);
 
     % For each distribution in dist_names
     for i = 1:length(dist_names)
@@ -32,7 +31,7 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
     end
 
     % Identify the best fit (distribution with the smallest Chi-squared statistic)
-    [~, best_index] = min(chi_squared);
+    [~, best_index] = max(p_values); % Find the index of the distribution with the highest p-value
     best_fit = fits{best_index};  % Best fit distribution object
 
     % Display the best fitting distribution and its Chi-squared statistic
