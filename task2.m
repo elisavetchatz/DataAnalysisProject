@@ -20,30 +20,63 @@ num_resamples = 1000;
 chi_squared_resampled_one = resampling_goodness_of_fit(ED_coil_one, lambda1, num_resamples);
 chi_squared_resampled_zero = resampling_goodness_of_fit(ED_coil_zero, lambda2, num_resamples);
 
-chi_squared_original_one = chi2gof(ED_coil_one, 'CDF', @(x)expcdf(x, 1/lambda1), 'nparams', 1);
-chi_squared_original_zero = chi2gof(ED_coil_zero, 'CDF', @(x)expcdf(x, 1/lambda2), 'nparams', 1);
+[h_one, ~, stats] = chi2gof(ED_coil_one, 'CDF', @(x)expcdf(x, 1/lambda1), 'nparams', 1);
+chi_squared_original_one = stats.chi2stat;
+[h_zero, ~, stats]  = chi2gof(ED_coil_zero, 'CDF', @(x)expcdf(x, 1/lambda2), 'nparams', 1);
+chi_squared_original_zero = stats.chi2stat;
 
 % Compare the original and resampled chi-squared statistics
 threshold_one = prctile(chi_squared_resampled_one, 95);
 threshold_zero = prctile(chi_squared_resampled_zero, 95);
 
-accepted_one = chi_squared_original_one < threshold_one;
-accepted_zero = chi_squared_original_zero < threshold_zero;
 
-fprintf('Acceptance of hypothesis for Coil Code 1: %d\n', accepted_one);
-fprintf('Acceptance of hypothesis for Coil Code 0: %d\n', accepted_zero);
+% Determine if the null hypothesis is rejected
+if chi_squared_original_one < threshold_one
+    % Null hypothesis is not rejected
+    acceptance_one_string = 'cannot be rejected';
+else
+    % Null hypothesis is rejected
+    acceptance_one_string = 'can be rejected';
+end
+
+if chi_squared_original_zero < threshold_zero
+    % Null hypothesis is not rejected
+    acceptance_zero_string = 'cannot be rejected';
+else
+    % Null hypothesis is rejected
+    acceptance_zero_string = 'can be rejected';
+end
+
+fprintf('Acceptance of hypothesis for Coil Code 1: %s\n', acceptance_one_string);
+fprintf('Acceptance of hypothesis for Coil Code 0: %s\n', acceptance_zero_string);
 
 % Compare with parametric control 
 [hypothesis_one, ~, ~] = chi2gof(ED_coil_one, 'CDF', @(x)expcdf(x, 1/lambda1), 'nparams', 1, 'Alpha', 0.05);
 [hypothesis_zero, ~, ~] = chi2gof(ED_coil_zero, 'CDF', @(x)expcdf(x, 1/lambda2), 'nparams', 1, 'Alpha', 0.05);
 
-fprintf('Acceptance of hypothesis for Coil Code 1 with parametric control: %d\n',  hypothesis_one);
-fprintf('Acceptance of hypothesis for Coil Code 0 with parametric control: %d\n', hypothesis_zero);
+% Determine if the null hypothesis is rejected
+if hypothesis_zero == 0
+    % Null hypothesis is not rejected
+    acceptance_zero_string = 'cannot be rejected';
+else
+    % Null hypothesis is rejected
+    acceptance_zero_string = 'can be rejected';
+end
+
+if hypothesis_one == 0
+    % Null hypothesis is not rejected
+    acceptance_one_string = 'cannot be rejected';
+else
+    % Null hypothesis is rejected
+    acceptance_one_string = 'can be rejected';
+end
+fprintf('Acceptance of hypothesis for Coil Code 1 with parametric control: %s\n',  acceptance_one_string);
+fprintf('Acceptance of hypothesis for Coil Code 0 with parametric control: %s\n', acceptance_zero_string);
 
 
 
 
 %%% Sxolia
 % --------------------------------
-% Me to resampling dexomaste oti ta data mporei na einai apo ekthetiki katanomi
-% Alla me thn parametriko elegxo, den to dexomaste 
+% Kai me tous duo tropous pou exetazoume to an i katanomi einai ekthetiki
+% mporoume na dextoume oti einai ekthetiki
