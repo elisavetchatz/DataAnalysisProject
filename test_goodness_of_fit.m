@@ -28,6 +28,12 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
         % Debug output to inspect test results
         fprintf('Goodness of fit for %s: p-value = %f, Chi-squared = %.4f\n', ...
                 dist_names{i}, p_values(i), chi_squared(i));
+
+        % Store results in a cell array
+        results{i, 1} = dist_names{i};
+        results{i, 2} = p;
+        results{i, 3} = stats.chi2stat; 
+
     end
 
     % Identify the best fit (distribution with the smallest Chi-squared statistic)
@@ -38,4 +44,18 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
     fprintf('Best fit distribution: %s\n', dist_names{best_index});
     fprintf('Chi-squared value for the best fit: %.4f\n', chi_squared(best_index));
     fprintf('p-value for the best fit: %.4f\n', p_values(best_index));
+
+    row_height = 25; % Ύψος κάθε γραμμής
+    num_rows = length(dist_names); % Αριθμός γραμμών
+    uitable_height = max(300, row_height * (num_rows + 1)); % Προσαρμογή για τις γραμμές και την επικεφαλίδα
+    uitable_width = 600; % Πλάτος του πίνακα (μπορεί να προσαρμοστεί αν χρειάζεται)
+
+    % Δημιουργία του uitable
+    f = figure('Name', 'Goodness-of-Fit Results', 'NumberTitle', 'off', ...
+           'Position', [100, 100, uitable_width, uitable_height]);
+    uitable('Parent', f, ...
+        'Data', results, ...
+        'ColumnName', {'Distribution', 'p-value', 'Chi-squared'}, ...
+        'Position', [25, 25, uitable_width - 50, uitable_height - 50], ...
+        'ColumnWidth', {200, 150, 150}); % Προσαρμογή πλάτους στηλών 
 end
