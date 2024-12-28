@@ -3,6 +3,7 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
     chi_squared = zeros(length(dist_names), 1);  % Store Chi-squared values for each distribution
     p_values = zeros(length(dist_names), 1);     % Store p-values for each distribution
     fits = cell(length(dist_names), 1);           % Store fitted distribution objects
+    results = cell(length(dist_names), 3);        % Preallocate results cell array
 
     % Calculate histogram data
     num_bins = ceil(sqrt(length(data)));          % Number of bins (rule of thumb)
@@ -24,10 +25,6 @@ function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_nam
         % Store the Chi-squared statistic and p-value
         chi_squared(i) = stats.chi2stat;
         p_values(i) = p;
-
-        % Debug output to inspect test results
-        fprintf('Goodness of fit for %s: p-value = %f, Chi-squared = %.4f\n', ...
-                dist_names{i}, p_values(i), chi_squared(i));
 
         % Store results in a cell array
         results{i, 1} = dist_names{i};

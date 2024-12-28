@@ -27,6 +27,7 @@ bin_edges = linspace(min([ED_with_TMS; ED_without_TMS]), max([ED_with_TMS; ED_wi
 ED_with_TMS_struct = struct('data', ED_with_TMS, 'dataname', 'ED with TMS', 'color', 'r');
 ED_without_TMS_struct = struct('data', ED_without_TMS, 'dataname', 'ED without TMS', 'color', 'b');
 
+figure;
 plot_with_best_fit(ED_with_TMS_struct, bin_edges, best_fit_with);
 plot_with_best_fit(ED_without_TMS_struct, bin_edges, best_fit_without);
 
