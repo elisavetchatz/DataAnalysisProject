@@ -30,6 +30,10 @@ ED_without_TMS_struct = struct('data', ED_without_TMS, 'dataname', 'ED without T
 plot_with_best_fit(ED_with_TMS_struct, bin_edges, best_fit_with);
 plot_with_best_fit(ED_without_TMS_struct, bin_edges, best_fit_without);
 
+xlabel('Time(s)');
+ylabel('Probability Density');
+title('Histogram and Best Fit Distribution for ED Duration');
+
 
 legend('show')
 hold off;

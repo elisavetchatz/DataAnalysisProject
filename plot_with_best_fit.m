@@ -16,7 +16,5 @@ function plot_with_best_fit(data_struct, bin_edges, best_fit_dist)
     % Plot the best fit distribution
     plot(x_values, y_values, 'LineWidth', 2, 'DisplayName', ['Best Fit - ' data_name], 'Color', color);
     
-    % Add labels and legend
-    xlabel('Seconds');
     % Doesn't release the hold
 end
