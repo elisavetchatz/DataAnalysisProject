@@ -1,6 +1,6 @@
 %Group40Exe2
 
-data = readtable('TMS.xlsx');
+data = readtable('C:\Users\chatz\DataAnalysisProject\TMS.xlsx');
 
 % Extract relevant columns for ED duration with different coil codes
 ED_coil_one = data.EDduration(strcmp(data.CoilCode, '1'));
