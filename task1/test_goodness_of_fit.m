@@ -1,3 +1,16 @@
+% TEST_GOODNESS_OF_FIT Tests the goodness of fit for given data against specified distributions.
+%
+% Inputs:
+%   data       - A vector of observed data points.
+%   dist_names - A cell array of strings, where each string is the name of a
+%                distribution to test against.
+%
+% Outputs:
+%   best_fit   - The distribution that best fits the data.
+%   chi_squared - A vector of chi-squared statistics for each distribution.
+%   p_values   - A vector of p-values corresponding to the chi-squared statistics.
+%
+
 function [best_fit, chi_squared, p_values] = test_goodness_of_fit(data, dist_names)
     % Initialize outputs
     chi_squared = zeros(length(dist_names), 1);  % Store Chi-squared values for each distribution
