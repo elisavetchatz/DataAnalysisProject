@@ -6,7 +6,7 @@ data = readtable('TMS.xlsx');
 ED_with_TMS = data.EDduration(data.TMS == 1);
 ED_without_TMS = data.EDduration(data.TMS == 0);
 
-% Remove missing values to be safe 
+% Remove missing values to be safe
 ED_with_TMS = ED_with_TMS(~isnan(ED_with_TMS));
 ED_without_TMS = ED_without_TMS(~isnan(ED_without_TMS));
 
@@ -20,7 +20,7 @@ warning('off', 'all'); % Suppress warnings for better output readability
 [best_fit_without, ~, ~] = test_goodness_of_fit(ED_without_TMS, dist_names);
 
 
-num_bins = ceil(sqrt(length(ED_with_TMS))); % Number of bins (rule of thumb)
+num_bins = round(sqrt(length(ED_with_TMS))); % Number of bins (rule of thumb)
 bin_edges = linspace(min([ED_with_TMS; ED_without_TMS]), max([ED_with_TMS; ED_without_TMS]), num_bins);
 
 

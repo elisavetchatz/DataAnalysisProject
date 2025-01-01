@@ -1,18 +1,8 @@
-function check_corr(file_path, setup_num, alpha)
+function check_corr(preTMS, postTMS, alpha)
     % Check if the preTMS and postTMS data is related
-
     % H0: The preTMS and postTMS data is not related
     % H1: The preTMS and postTMS data is related
 
-    % Read the data from the specified file
-    data = readtable(file_path);
-
-    % Extracting the data from the table
-    preTMS = data.preTMS(data.Setup == setup_num);
-    postTMS = data.postTMS(data.Setup == setup_num);
-
-    preTMS = preTMS(~isnan(preTMS));
-    postTMS = postTMS(~isnan(postTMS));
 
     % Calculate the correlation coefficient
     [r, p] = corr(preTMS, postTMS, 'Type', 'Pearson');
@@ -29,8 +19,8 @@ function check_corr(file_path, setup_num, alpha)
 
     % Reject the null hypothesis if p_value < alpha
     if p_value < alpha
-        fprintf('The preTMS and postTMS data is related\n');
+        fprintf('The preTMS and postTMS data is correlated\n');
     else
-        fprintf('The preTMS and postTMS data is not related\n');
+        fprintf('The preTMS and postTMS data is not correlated\n');
     end
 end
