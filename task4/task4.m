@@ -55,5 +55,7 @@ for i = 1:length(setup_numbers)
 end
 
 
+% I think Results should be shown in a matrix or table format?
+
 % Sample size is small (8) so, i would trust more the randomization test than the parametric(?)
 % But both tests show that the data is not correlated
