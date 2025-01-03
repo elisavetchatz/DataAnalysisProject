@@ -36,14 +36,42 @@ sigma_with_TMS = pd_with_TMS.sigma;
 p_values_without_TMS = zeros(1, 6); % Array to store p-values for "No TMS"
 p_values_with_TMS = zeros(1, 6); % Array to store p-values for "With TMS"
 
-for i = 1:6
+% Bootstrap resampling for ED durations (without and with TMS)
+num_resamples = 1000;
+bootstrap_means_without_TMS = zeros(num_resamples, 6);
+bootstrap_means_with_TMS = zeros(num_resamples, 6);
+
+% Confidence intervals for ED durations (without TMS and with TMS)
+ci_without_TMS = cell(1, 6);
+ci_with_TMS = cell(1, 6);
+
+for setup_num = 1:6
     % Test for normality in each setup (without TMS)
     norm_cdf_without_TMS = @(x) normcdf(x, mu_without_TMS, sigma_without_TMS);
-    [hypothesis_without_TMS, p_values_without_TMS(i)] = chi2gof(ED_without_TMS_samples{i}, 'CDF', norm_cdf_without_TMS, 'Alpha', 0.05);
+    [hypothesis_without_TMS, p_values_without_TMS(setup_num)] = chi2gof(ED_without_TMS_samples{setup_num}, 'CDF', norm_cdf_without_TMS, 'Alpha', 0.05);
 
     % Test for normality in each setup (with TMS)
     norm_cdf_with_TMS = @(x) normcdf(x, mu_with_TMS, sigma_with_TMS);
-    [hypothesis_with_TMS, p_values_with_TMS(i)] = chi2gof(ED_with_TMS_samples{i}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
+    [hypothesis_with_TMS, p_values_with_TMS(setup_num)] = chi2gof(ED_with_TMS_samples{setup_num}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
+
+    if hypothesis_with_TMS == 1
+        % Bootstrap for ED without TMS
+        for i = 1:num_resamples
+            bootstrap_means_without_TMS(i, setup_num) = mean(datasample(ED_without_TMS_samples{setup_num}, length(ED_without_TMS_samples{setup_num})));
+        end
+        % Confidence intervals for ED without TMS
+        ci_without_TMS{setup_num} = prctile(bootstrap_means_without_TMS(:, setup_num), [0.025, 0.975]);
+    end
+    
+    if hypothesis_with_TMS == 1
+        % Bootstrap for ED with TMS
+        for i = 1:num_resamples
+            bootstrap_means_with_TMS(i, setup_num) = mean(datasample(ED_with_TMS_samples{setup_num}, length(ED_with_TMS_samples{setup_num})));
+        end
+        % Confidence intervals for ED with TMS
+        ci_with_TMS{setup_num} = prctile(bootstrap_means_with_TMS(:, setup_num), [0.025, 0.975]);
+    end 
+
 end
 
 % Plot the Chi-square Goodness-of-Fit Test p-values for both "Without TMS" and "With TMS"
