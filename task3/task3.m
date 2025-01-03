@@ -45,6 +45,11 @@ bootstrap_means_with_TMS = zeros(num_resamples, 6);
 ci_without_TMS = cell(1, 6);
 ci_with_TMS = cell(1, 6);
 
+% Create a table to display the results
+results_table = table('Size', [6, 7], 'VariableTypes', {'double', 'double', 'double', 'double', 'double', 'string', 'string'}, ...
+    'VariableNames', {'Setup', 'CI_Lower_Without_TMS', 'CI_Upper_Without_TMS', 'CI_Lower_With_TMS', 'CI_Upper_With_TMS', 'Accepted_Without_TMS', 'Accepted_With_TMS'});
+
+% Loop through all 6 setups and calculate confidence intervals
 for setup_num = 1:6
     % Test for normality in each setup (without TMS)
     norm_cdf_without_TMS = @(x) normcdf(x, mu_without_TMS, sigma_without_TMS);
@@ -53,7 +58,7 @@ for setup_num = 1:6
     % Test for normality in each setup (with TMS)
     norm_cdf_with_TMS = @(x) normcdf(x, mu_with_TMS, sigma_with_TMS);
     [hypothesis_with_TMS, p_values_with_TMS(setup_num)] = chi2gof(ED_with_TMS_samples{setup_num}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
-
+    
     % If the data is not normally distributed, perform bootstrap resampling
     if hypothesis_without_TMS == 1
         % Bootstrap for ED without TMS
@@ -82,7 +87,33 @@ for setup_num = 1:6
         ci_with_TMS{setup_num} = norminv([0.025, 0.975], mu_with_TMS, sigma_with_TMS);
     end 
 
+
+    % Populate the table with the confidence intervals and mean ED durations
+    results_table.Setup = (1:6)';
+    results_table.CI_Lower_Without_TMS(setup_num) = ci_without_TMS{setup_num}(1);
+    results_table.CI_Upper_Without_TMS(setup_num) = ci_without_TMS{setup_num}(2);
+    results_table.CI_Lower_With_TMS(setup_num) = ci_with_TMS{setup_num}(1);
+    results_table.CI_Upper_With_TMS(setup_num) = ci_with_TMS{setup_num}(2);
+
+    % Check if the mean ED duration is within the confidence intervals
+    if mean_ED_without_TMS >= ci_without_TMS{setup_num}(1) && mean_ED_without_TMS <= ci_without_TMS{setup_num}(2)
+        results_table.Accepted_Without_TMS(setup_num) = "Yes";
+    else
+        results_table.Accepted_Without_TMS(setup_num) = "No";
+    end
+    
+    if mean_ED_with_TMS >= ci_with_TMS{setup_num}(1) && mean_ED_with_TMS <= ci_with_TMS{setup_num}(2)
+        results_table.Accepted_With_TMS(setup_num) = "Yes";
+    else
+        results_table.Accepted_With_TMS(setup_num) = "No";
+    end
+
+    
 end
+
+% Display the table
+disp(results_table);
+
 
 % Plot the Chi-square Goodness-of-Fit Test p-values for both "Without TMS" and "With TMS"
 figure;
