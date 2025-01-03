@@ -1,7 +1,7 @@
 % Read the data from the file
-currentFilePath = mfilename('fullpath');
-[parentFolder, ~, ~] = fileparts(fileparts(currentFilePath));
-data_path = fullfile(parentFolder, 'TMS.xlsx');
+current_file_path = mfilename('fullpath');
+[parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
+data_path = fullfile(parent_folder, 'TMS.xlsx');
 data = readtable(data_path);  
 
 % Extract ED duration data for both TMS and no TMS
@@ -55,7 +55,7 @@ for setup_num = 1:6
     [hypothesis_with_TMS, p_values_with_TMS(setup_num)] = chi2gof(ED_with_TMS_samples{setup_num}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
 
     % If the data is not normally distributed, perform bootstrap resampling
-    if hypothesis_with_TMS == 1
+    if hypothesis_without_TMS == 1
         % Bootstrap for ED without TMS
         for i = 1:num_resamples
             bootstrap_means_without_TMS(i, setup_num) = mean(datasample(ED_without_TMS_samples{setup_num}, length(ED_without_TMS_samples{setup_num})));
@@ -66,7 +66,6 @@ for setup_num = 1:6
     else
         % If the data is normally distributed, calculate the confidence intervals directly
         ci_without_TMS{setup_num} = norminv([0.025, 0.975], mu_without_TMS, sigma_without_TMS);
-        ci_with_TMS{setup_num} = norminv([0.025, 0.975], mu_with_TMS, sigma_with_TMS);
     end
     
     % If the data is not normally distributed, perform bootstrap resampling
@@ -80,7 +79,6 @@ for setup_num = 1:6
 
     else
         % If the data is normally distributed, calculate the confidence intervals directly
-        ci_without_TMS{setup_num} = norminv([0.025, 0.975], mu_without_TMS, sigma_without_TMS);
         ci_with_TMS{setup_num} = norminv([0.025, 0.975], mu_with_TMS, sigma_with_TMS);
     end 
 
