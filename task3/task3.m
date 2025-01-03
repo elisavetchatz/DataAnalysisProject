@@ -54,6 +54,7 @@ for setup_num = 1:6
     norm_cdf_with_TMS = @(x) normcdf(x, mu_with_TMS, sigma_with_TMS);
     [hypothesis_with_TMS, p_values_with_TMS(setup_num)] = chi2gof(ED_with_TMS_samples{setup_num}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
 
+    % If the data is not normally distributed, perform bootstrap resampling
     if hypothesis_with_TMS == 1
         % Bootstrap for ED without TMS
         for i = 1:num_resamples
@@ -61,8 +62,14 @@ for setup_num = 1:6
         end
         % Confidence intervals for ED without TMS
         ci_without_TMS{setup_num} = prctile(bootstrap_means_without_TMS(:, setup_num), [0.025, 0.975]);
+
+    else
+        % If the data is normally distributed, calculate the confidence intervals directly
+        ci_without_TMS{setup_num} = norminv([0.025, 0.975], mu_without_TMS, sigma_without_TMS);
+        ci_with_TMS{setup_num} = norminv([0.025, 0.975], mu_with_TMS, sigma_with_TMS);
     end
     
+    % If the data is not normally distributed, perform bootstrap resampling
     if hypothesis_with_TMS == 1
         % Bootstrap for ED with TMS
         for i = 1:num_resamples
@@ -70,6 +77,11 @@ for setup_num = 1:6
         end
         % Confidence intervals for ED with TMS
         ci_with_TMS{setup_num} = prctile(bootstrap_means_with_TMS(:, setup_num), [0.025, 0.975]);
+
+    else
+        % If the data is normally distributed, calculate the confidence intervals directly
+        ci_without_TMS{setup_num} = norminv([0.025, 0.975], mu_without_TMS, sigma_without_TMS);
+        ci_with_TMS{setup_num} = norminv([0.025, 0.975], mu_with_TMS, sigma_with_TMS);
     end 
 
 end
