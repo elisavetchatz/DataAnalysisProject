@@ -1,4 +1,8 @@
-data = readtable('C:\Users\chatz\DataAnalysisProject\TMS.xlsx');  % Read the data from the file
+% Read the data from the file
+currentFilePath = mfilename('fullpath');
+[parentFolder, ~, ~] = fileparts(fileparts(currentFilePath));
+data_path = fullfile(parentFolder, 'TMS.xlsx');
+data = readtable(data_path);  
 
 % Extract ED duration data for both TMS and no TMS
 ED_without_TMS = data.EDduration(data.TMS == 0);
@@ -36,7 +40,7 @@ for i = 1:6
     % Test for normality in each setup (without TMS)
     norm_cdf_without_TMS = @(x) normcdf(x, mu_without_TMS, sigma_without_TMS);
     [hypothesis_without_TMS, p_values_without_TMS(i)] = chi2gof(ED_without_TMS_samples{i}, 'CDF', norm_cdf_without_TMS, 'Alpha', 0.05);
-    
+
     % Test for normality in each setup (with TMS)
     norm_cdf_with_TMS = @(x) normcdf(x, mu_with_TMS, sigma_with_TMS);
     [hypothesis_with_TMS, p_values_with_TMS(i)] = chi2gof(ED_with_TMS_samples{i}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
@@ -92,7 +96,7 @@ xlabel('Setup');
 % Mathematical Analysis and Discussion:
 % - Histograms show the distribution of ED durations, with overlaid normal distribution curves.
 % - The bootstrap resampling results show the variability in the means of ED durations across the setups.
-% - The Chi-square p-values provide insight into how well the data fits a normal distribution. 
+% - The Chi-square p-values provide insight into how well the data fits a normal distribution.
 %   If the p-value is below the threshold (0.05), we reject the hypothesis that the data follows a normal distribution.
 % - From the boxplots, we can see the spread of the bootstrap means for each setup and determine whether the presence of TMS
 %   affects the variability in ED durations.

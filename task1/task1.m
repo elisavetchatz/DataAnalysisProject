@@ -1,6 +1,10 @@
 %Group40Exe1
 
-data = readtable('TMS.xlsx');
+% Read the data from the file
+currentFilePath = mfilename('fullpath');
+[parentFolder, ~, ~] = fileparts(fileparts(currentFilePath));
+data_path = fullfile(parentFolder, 'TMS.xlsx');
+data = readtable(data_path); 
 
 % Extract relevant columns for ED duration with and without TMS
 ED_with_TMS = data.EDduration(data.TMS == 1);

@@ -1,11 +1,13 @@
 %Group40Exe4
 
-file_path = '../TMS.xlsx';
+% Read the data from the file
+currentFilePath = mfilename('fullpath');
+[parentFolder, ~, ~] = fileparts(fileparts(currentFilePath));
+data_path = fullfile(parentFolder, 'TMS.xlsx');
+data = readtable(data_path); 
+
 setup_numbers = 1:6;
 alpha = 0.05;
-
-% Read the data from the specified file
-data = readtable(file_path);
 
 % Extracting the data from the table
 preTMS = data.preTMS(data.Setup == setup_num);
