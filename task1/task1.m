@@ -1,10 +1,13 @@
 %Group40Exe1
 
 % Read the data from the file
-currentFilePath = mfilename('fullpath');
-[parentFolder, ~, ~] = fileparts(fileparts(currentFilePath));
-data_path = fullfile(parentFolder, 'TMS.xlsx');
-data = readtable(data_path); 
+current_file_path = mfilename('fullpath');
+[parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
+data_path = fullfile(parent_folder, 'TMS.xlsx');
+if ~exist(data_path, 'file')
+    error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
+end
+data = readtable(data_path);  
 
 % Extract relevant columns for ED duration with and without TMS
 ED_with_TMS = data.EDduration(data.TMS == 1);
