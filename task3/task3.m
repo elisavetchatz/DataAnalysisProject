@@ -1,46 +1,60 @@
-data = readtable('C:\Users\chatz\DataAnalysisProject\TMS.xlsx');  % Read the data from the file
+% Group40Exe3
+
+% Read the data from the file
+current_file_path = mfilename('fullpath');
+[parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
+data_path = fullfile(parent_folder, 'TMS.xlsx');
+if ~exist(data_path, 'file')
+    error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
+end
+data = readtable(data_path);  
 
 % Extract ED duration data for both TMS and no TMS
 ED_without_TMS = data.EDduration(data.TMS == 0);
 ED_with_TMS = data.EDduration(data.TMS == 1);
 
 % Calculate the mean ED duration for both cases (without TMS and with TMS)
-mean_ED_without_TMS = mean(ED_without_TMS);
-mean_ED_with_TMS = mean(ED_with_TMS);
+mu_without_TMS = mean(ED_without_TMS);
+mu_with_TMS = mean(ED_with_TMS);
+sigma_without_TMS = std(ED_without_TMS);
+sigma_with_TMS = std(ED_with_TMS);
 
-% Split the data into 6 samples based on the Setup variable
-ED_without_TMS_samples = cell(1, 6);
-ED_with_TMS_samples = cell(1, 6);
+num_resamples = 1000;
 
-% Loop through all 6 setups and extract the ED durations for both cases
-for i = 1:6
-    ED_without_TMS_samples{i} = data.EDduration(data.TMS == 0 & data.Setup == i);
-    ED_with_TMS_samples{i} = data.EDduration(data.TMS == 1 & data.Setup == i);
-end
+% Without TMS
+[ci_without_TMS, bootstrap_means_without_TMS, p_values_without_TMS] = calculate_confidence_intervals(data, num_resamples, sigma_without_TMS, mu_without_TMS);
 
-% Fit a normal distribution to the ED duration data (without TMS)
-pd_without_TMS = fitdist(ED_without_TMS, 'Normal');
-mu_without_TMS = pd_without_TMS.mu;
-sigma_without_TMS = pd_without_TMS.sigma;
+% With TMS
+[ci_with_TMS, bootstrap_means_with_TMS, p_values_with_TMS] = calculate_confidence_intervals(data, num_resamples, sigma_with_TMS, mu_with_TMS);
 
-% Fit a normal distribution to the ED duration data (with TMS)
-pd_with_TMS = fitdist(ED_with_TMS, 'Normal');
-mu_with_TMS = pd_with_TMS.mu;
-sigma_with_TMS = pd_with_TMS.sigma;
+results_table = table('Size', [6, 4], 'VariableTypes', {'cell', 'string', 'cell', 'string'}, 'VariableNames', {'CI_Without_TMS', 'Accepted_Without_TMS', 'CI_With_TMS', 'Accepted_With_TMS'});
 
-% Perform a Chi-square goodness-of-fit test for normal distribution for each setup
-p_values_without_TMS = zeros(1, 6); % Array to store p-values for "No TMS"
-p_values_with_TMS = zeros(1, 6); % Array to store p-values for "With TMS"
+% Setup the results table
+for setup_num=1:6
+    % Populate the table with the confidence intervals and acceptance status
+    results_table.CI_Without_TMS{setup_num} = ci_without_TMS{setup_num};
+    results_table.CI_With_TMS{setup_num} = ci_with_TMS{setup_num};
 
-for i = 1:6
-    % Test for normality in each setup (without TMS)
-    norm_cdf_without_TMS = @(x) normcdf(x, mu_without_TMS, sigma_without_TMS);
-    [hypothesis_without_TMS, p_values_without_TMS(i)] = chi2gof(ED_without_TMS_samples{i}, 'CDF', norm_cdf_without_TMS, 'Alpha', 0.05);
+    % Check if the mean ED duration is within the confidence intervals
+    if mu_without_TMS >= ci_without_TMS{setup_num}(1) && mu_without_TMS <= ci_without_TMS{setup_num}(2)
+        results_table.Accepted_Without_TMS(setup_num) = "Yes";
+    else
+        results_table.Accepted_Without_TMS(setup_num) = "No";
+    end
     
-    % Test for normality in each setup (with TMS)
-    norm_cdf_with_TMS = @(x) normcdf(x, mu_with_TMS, sigma_with_TMS);
-    [hypothesis_with_TMS, p_values_with_TMS(i)] = chi2gof(ED_with_TMS_samples{i}, 'CDF', norm_cdf_with_TMS, 'Alpha', 0.05);
+    if mu_with_TMS >= ci_with_TMS{setup_num}(1) && mu_with_TMS <= ci_with_TMS{setup_num}(2)
+        results_table.Accepted_With_TMS(setup_num) = "Yes";
+    else
+        results_table.Accepted_With_TMS(setup_num) = "No";
+    end
+    
 end
+
+% Display the table with the results
+fprintf('Mean ED Duration without TMS: %.2f seconds\n', mu_without_TMS);
+fprintf('Mean ED Duration with TMS: %.2f seconds\n', mu_with_TMS);
+disp(results_table);
+
 
 % Plot the Chi-square Goodness-of-Fit Test p-values for both "Without TMS" and "With TMS"
 figure;
@@ -92,7 +106,7 @@ xlabel('Setup');
 % Mathematical Analysis and Discussion:
 % - Histograms show the distribution of ED durations, with overlaid normal distribution curves.
 % - The bootstrap resampling results show the variability in the means of ED durations across the setups.
-% - The Chi-square p-values provide insight into how well the data fits a normal distribution. 
+% - The Chi-square p-values provide insight into how well the data fits a normal distribution.
 %   If the p-value is below the threshold (0.05), we reject the hypothesis that the data follows a normal distribution.
 % - From the boxplots, we can see the spread of the bootstrap means for each setup and determine whether the presence of TMS
 %   affects the variability in ED durations.
@@ -101,3 +115,19 @@ xlabel('Setup');
 % - The Chi-square test may indicate that the distribution of ED durations is not perfectly normal for both with and without TMS,
 %   leading us to use bootstrap for confidence intervals.
 % - The confidence intervals provide an estimate of the uncertainty around the mean ED duration for each setup.
+
+% The results are the following:
+%Mean ED Duration without TMS: 13.26 seconds
+% Mean ED Duration with TMS: 12.19 seconds
+%   CI_Without_TMS       Accepted_Without_TMS        CI_With_TMS         Accepted_With_TMS
+% ___________________    ____________________    ____________________    _________________
+
+% {[  6.3620 7.3805]}            "No"            {[-11.5235 35.9127]}          "Yes"      
+% {[  8.4048 9.4167]}            "No"            {[   8.5238 9.4405]}          "No"       
+% {[14.5556 19.3611]}            "No"            {[ 12.2222 18.8889]}          "No"       
+% {[  6.0500 6.8011]}            "No"            {[   6.2045 6.7270]}          "No"       
+% {[  3.6091 4.0636]}            "No"            {[   3.1364 4.1727]}          "No"       
+% {[     30 31.5000]}            "No"            {[      30 31.5000]}          "No"       
+
+
+% We observe that for both with and without TMS, the mean ED duration falls outside the confidence intervals for all setups, except for Setup 1 with TMS.
