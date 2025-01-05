@@ -1,6 +1,6 @@
 %Group40Exe4
 
-file_path = '../TMS.xlsx';
+file_path = 'C:\Users\chatz\DataAnalysisProject\TMS.xlsx';
 setup_numbers = 1:6;
 alpha = 0.05;
 
@@ -18,13 +18,13 @@ fprintf('Size of preTMS: %d\n', length(preTMS)); % 8
 fprintf('Size of postTMS: %d\n', length(postTMS)); % 8
 
 
-%% Test correlation for each setup number (parametric test)
+%Test correlation for each setup number (parametric test)
 fprintf('Parametric Test Results:\n');
 for setup_num = setup_numbers
     check_corr(preTMS, postTMS, alpha);
 end
 
-%% Test correlation using randomization test
+% Test correlation using randomization test
 num_random_samples = 1000;
 r_true = zeros(length(setup_numbers), 1);
 results = struct('r', zeros(num_random_samples, 1), 'p', zeros(num_random_samples, 1));
