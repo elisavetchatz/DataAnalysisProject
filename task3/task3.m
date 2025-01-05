@@ -117,17 +117,17 @@ xlabel('Setup');
 % - The confidence intervals provide an estimate of the uncertainty around the mean ED duration for each setup.
 
 % The results are the following:
-%Mean ED Duration without TMS: 13.26 seconds
+% Mean ED Duration without TMS: 13.26 seconds
 % Mean ED Duration with TMS: 12.19 seconds
-%   CI_Without_TMS       Accepted_Without_TMS        CI_With_TMS         Accepted_With_TMS
-% ___________________    ____________________    ____________________    _________________
+%       CI_Without_TMS       Accepted_Without_TMS        CI_With_TMS         Accepted_With_TMS
+%     ___________________    ____________________    ____________________    _________________
 
-% {[  6.3620 7.3805]}            "No"            {[-11.5235 35.9127]}          "Yes"      
-% {[  8.4048 9.4167]}            "No"            {[   8.5238 9.4405]}          "No"       
-% {[14.5556 19.3611]}            "No"            {[ 12.2222 18.8889]}          "No"       
-% {[  6.0500 6.8011]}            "No"            {[   6.2045 6.7270]}          "No"       
-% {[  3.6091 4.0636]}            "No"            {[   3.1364 4.1727]}          "No"       
-% {[     30 31.5000]}            "No"            {[      30 31.5000]}          "No"       
+%     {[ 8.2280 20.7770]}           "Yes"            {[-11.5235 35.9127]}          "Yes"      
+%     {[ 9.7500 14.5714]}           "Yes"            {[  9.6786 14.7143]}          "Yes"      
+%     {[19.8889 38.7222]}           "No"             {[ 20.5000 38.7778]}          "No"       
+%     {[ 7.0733 11.0858]}           "No"             {[  7.0727 11.1472]}          "No"       
+%     {[  4.3136 9.1409]}           "No"             {[   4.2864 8.9364]}          "No"       
+%     {[     33 91.5000]}           "No"             {[      33 94.2500]}          "No"       
 
 
-% We observe that for both with and without TMS, the mean ED duration falls outside the confidence intervals for all setups, except for Setup 1 with TMS.
+% We observe that for both with and without TMS, the mean ED duration falls outside the confidence intervals for all setups, except for Setup 1 and 2.

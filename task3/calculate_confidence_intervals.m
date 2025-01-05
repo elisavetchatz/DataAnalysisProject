@@ -10,7 +10,7 @@ function [ci, bootstrap_means, p_values] = calculate_confidence_intervals(data, 
     % Loop through all 6 setups and calculate confidence intervals
     for setup_num = 1:6
         ED_samples{setup_num} = data.EDduration(data.TMS == 0 & data.Setup == setup_num);
-        % Test for normality in each setup (without TMS)
+        % Test for normality in each setup
         norm_cdf = @(x) normcdf(x, mu, sigma);
         [hypothesis, p_values(setup_num)] = chi2gof(ED_samples{setup_num}, 'CDF', norm_cdf, 'Alpha', 0.05);
 
@@ -22,7 +22,7 @@ function [ci, bootstrap_means, p_values] = calculate_confidence_intervals(data, 
                 bootstrap_means(i, setup_num) = mean(datasample(ED_samples{setup_num}, length(ED_samples{setup_num})));
             end
             % Confidence intervals for ED without TMS
-            ci{setup_num} = prctile(bootstrap_means(:, setup_num), [0.025, 0.975]);
+            ci{setup_num} = prctile(bootstrap_means(:, setup_num), [2.5, 97.5]);
         else
             % If the data is normally distributed, calculate the confidence intervals directly
             ci{setup_num} = norminv([0.025, 0.975], mu, sigma);
