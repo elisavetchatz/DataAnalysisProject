@@ -17,6 +17,7 @@ data = readtable(data_path);
 data_with_TMS = data(data.TMS == 1, :);
 
 % Check and convert variable types for compatibility
+% , δεν ξερω αν δουλευει 100% σωστα αυτο
 columns_to_convert = {'Stimuli', 'Intensity', 'Spike', 'Frequency', 'CoilCode'};
 for i = 1:length(columns_to_convert)
     column = columns_to_convert{i};
@@ -83,3 +84,55 @@ results_table = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
 
 disp('Model Comparison Results:');
 disp(results_table);
+
+%---Without variable Spike---
+% Remove the Spike variable
+indepedent_vars_no_spike = removevars(indepedent_vars, 'Spike');
+
+lm_full_no_spike = fitlm(indepedent_vars(:, {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'}), EDduration);
+lm_stepwise_no_spike = stepwiselm(indepedent_vars(:, {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'}), EDduration, 'Verbose', 1);
+
+% Preprocess the data for LASSO
+X_lasso_no_spike = table2array(indepedent_vars_no_spike);
+
+% Perform LASSO regression with cross-validation
+[beta_no_spike, fitinfo_no_spike] = lasso(X_lasso_no_spike, Y_lasso, 'CV', 10);
+
+%metrics no spike
+mse_full_no_spike = lm_full_no_spike.MSE;
+r2_full_no_spike = lm_full_no_spike.Rsquared.Adjusted;
+
+mse_stepwise_no_spike = lm_stepwise_no_spike.MSE;
+r2_stepwise_no_spike = lm_stepwise_no_spike.Rsquared.Adjusted;
+
+selected_vars_no_spike = find(beta_no_spike(:, fitinfo_no_spike.IndexMinMSE) ~= 0);
+lm_lasso_no_spike = fitlm(X_lasso_no_spike(:, selected_vars_no_spike), Y_lasso);
+mse_lasso_no_spike = lm_lasso_no_spike.MSE;
+r2_lasso_no_spike = lm_lasso_no_spike.Rsquared.Adjusted;
+
+lambda_optimal_no_spike = fitinfo_no_spike.LambdaMinMSE;
+
+%comparison table without spike
+results_table_no_spike = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
+                      [mse_full_no_spike; mse_stepwise_no_spike; mse_lasso_no_spike], ...
+                      [r2_full_no_spike; r2_stepwise_no_spike; r2_lasso_no_spike], ...
+                      'VariableNames', {'Model', 'MSE', 'Adjusted_R2'});
+disp('Model Comparison Results without Spike:');
+disp(results_table_no_spike);
+
+
+%Model Comparison Results:
+%       Model            MSE      Adjusted_R2
+% __________________    ______    ___________
+
+% {'Full Model'    }    62.081      0.040702 
+% {'Stepwise Model'}    62.721      0.030815 
+% {'LASSO Model'   }    146.44    2.2204e-16 
+
+% Model Comparison Results without Spike:
+%           Model            MSE      Adjusted_R2
+%     __________________    ______    ___________
+
+%     {'Full Model'    }    110.93      0.24253  
+%     {'Stepwise Model'}    83.753      0.42808  
+%     {'LASSO Model'   }    110.93      0.24253 
