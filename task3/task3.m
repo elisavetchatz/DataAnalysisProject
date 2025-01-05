@@ -1,13 +1,14 @@
 % Group40Exe3
 
 % Read the data from the file
+warning('off', 'all');
 current_file_path = mfilename('fullpath');
 [parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
 data_path = fullfile(parent_folder, 'TMS.xlsx');
 if ~exist(data_path, 'file')
     error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
 end
-data = readtable(data_path);  
+data = readtable(data_path);
 
 % Extract ED duration data for both TMS and no TMS
 ED_without_TMS = data.EDduration(data.TMS == 0);
@@ -22,10 +23,12 @@ sigma_with_TMS = std(ED_with_TMS);
 num_resamples = 1000;
 
 % Without TMS
-[ci_without_TMS, bootstrap_means_without_TMS, p_values_without_TMS] = calculate_confidence_intervals(data, num_resamples, sigma_without_TMS, mu_without_TMS);
+useTMS = 0;
+[ci_without_TMS, bootstrap_means_without_TMS, p_values_without_TMS] = calculate_confidence_intervals(data, num_resamples, useTMS);
 
 % With TMS
-[ci_with_TMS, bootstrap_means_with_TMS, p_values_with_TMS] = calculate_confidence_intervals(data, num_resamples, sigma_with_TMS, mu_with_TMS);
+useTMS = 1;
+[ci_with_TMS, bootstrap_means_with_TMS, p_values_with_TMS] = calculate_confidence_intervals(data, num_resamples, useTMS);
 
 results_table = table('Size', [6, 4], 'VariableTypes', {'cell', 'string', 'cell', 'string'}, 'VariableNames', {'CI_Without_TMS', 'Accepted_Without_TMS', 'CI_With_TMS', 'Accepted_With_TMS'});
 
@@ -41,13 +44,13 @@ for setup_num=1:6
     else
         results_table.Accepted_Without_TMS(setup_num) = "No";
     end
-    
+
     if mu_with_TMS >= ci_with_TMS{setup_num}(1) && mu_with_TMS <= ci_with_TMS{setup_num}(2)
         results_table.Accepted_With_TMS(setup_num) = "Yes";
     else
         results_table.Accepted_With_TMS(setup_num) = "No";
     end
-    
+
 end
 
 % Display the table with the results
@@ -119,15 +122,15 @@ xlabel('Setup');
 % The results are the following:
 % Mean ED Duration without TMS: 13.26 seconds
 % Mean ED Duration with TMS: 12.19 seconds
-%       CI_Without_TMS       Accepted_Without_TMS        CI_With_TMS         Accepted_With_TMS
-%     ___________________    ____________________    ____________________    _________________
+%        CI_Without_TMS        Accepted_Without_TMS        CI_With_TMS        Accepted_With_TMS
+%     _____________________    ____________________    ___________________    _________________
 
-%     {[ 8.2280 20.7770]}           "Yes"            {[-11.5235 35.9127]}          "Yes"      
-%     {[ 9.7500 14.5714]}           "Yes"            {[  9.6786 14.7143]}          "Yes"      
-%     {[19.8889 38.7222]}           "No"             {[ 20.5000 38.7778]}          "No"       
-%     {[ 7.0733 11.0858]}           "No"             {[  7.0727 11.1472]}          "No"       
-%     {[  4.3136 9.1409]}           "No"             {[   4.2864 8.9364]}          "No"       
-%     {[     33 91.5000]}           "No"             {[      33 94.2500]}          "No"       
+%     {[   8.1620 20.0700]}           "Yes"            {[-8.8424 35.4787]}          "Yes"
+%     {[   9.8214 14.4286]}           "Yes"            {[ 0.0859 16.8085]}          "Yes"
+%     {[  -0.6688 58.8910]}           "Yes"            {[-0.9686 32.4924]}          "Yes"
+%     {[  -4.7649 22.4899]}           "Yes"            {[  6.1918 9.4608]}          "No"
+%     {[  -1.3668 14.4214]}           "Yes"            {[-4.5856 21.3856]}          "Yes"
+%     {[-16.4657 127.9657]}           "Yes"            {[-8.3060 90.4685]}          "Yes"
 
 
 % We observe that for both with and without TMS, the mean ED duration falls outside the confidence intervals for all setups, except for Setup 1 and 2.
