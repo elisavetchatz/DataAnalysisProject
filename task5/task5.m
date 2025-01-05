@@ -1,3 +1,5 @@
+% Task 5: Regression Analysis of ED Duration by Setup
+
 % Read the data from the file
 current_file_path = mfilename('fullpath');
 [parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
@@ -5,49 +7,50 @@ data_path = fullfile(parent_folder, 'TMS.xlsx');
 if ~exist(data_path, 'file')
     error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
 end
-data = readtable(data_path);  
+data = readtable(data_path);
 
-% Filter data to include only rows where TMS == 0 (without TMS)
-data_without_TMS = data(data.TMS == 0, :);
+% Separate data into two cases: with and without TMS
+data_noTMS = data(data.TMS == 0, :);
+data_withTMS = data(data.TMS == 1, :);
 
-% Get EDduration without TMS
-ED_without_TMS = data_without_TMS.EDduration;
+% Initialize results struct array
+results = struct('Case', '', 'Rsquared', 0, 'AdjustedRsquared', 0, 'MeanResidual', 0, 'StdResidual', 0);
 
-% Get Setup as a numeric variable
-Setup_numeric = double(categorical(data_without_TMS.Setup));
+% Perform regression for both cases
+results(1) = perform_regression(data_noTMS, 'No TMS');
+results(2) = perform_regression(data_withTMS, 'With TMS');
 
-% Prepare independent variables matrix (predictors)
-X = [Setup_numeric]; 
+% Prepare results table for display
+result_table = table({results.Case}', [results.Rsquared]', [results.AdjustedRsquared]', ...
+    [results.MeanResidual]', [results.StdResidual]', ...
+    'VariableNames', {'Case', 'R_squared', 'Adjusted_R_squared', 'Mean_Residual', 'Std_Residual'});
 
-% Dependent variable (EDduration)
-y = ED_without_TMS;
+% Display results in command window
+fprintf('\n===========================\n');
+fprintf('Regression Analysis Results:\n');
+fprintf('===========================\n');
+for i = 1:height(result_table)
+    fprintf('Case: %s\n', result_table.Case{i});
+    fprintf('  R-squared: %.4f\n', result_table.R_squared(i));
+    fprintf('  Adjusted R-squared: %.4f\n', result_table.Adjusted_R_squared(i));
+    fprintf('  Mean Residual: %.4f\n', result_table.Mean_Residual(i));
+    fprintf('  Std Residual: %.4f\n', result_table.Std_Residual(i));
+    fprintf('---------------------------\n');
+end
 
-% Perform stepwise regression
-[bV, sdbV, pvalV, inmodel, stats] = stepwisefit(X, y);
+% Display results in a uitable
+f = figure('Name', 'Regression Results', 'Position', [100, 100, 700, 250]);
+uitable('Parent', f, 'Data', result_table{:,:}, 'ColumnName', result_table.Properties.VariableNames, ...
+    'Position', [20, 20, 660, 200]);
 
-% Extract the intercept
-b0 = stats.intercept;
-
-% Display results
-disp('Stepwise Regression Results:');
-disp('Selected Coefficients:');
-disp(bV(inmodel));  % Coefficients of selected predictors
-disp('Intercept:');
-disp(b0);
-
-% Plot the data and regression line
-figure;
-scatter(Setup_numeric, y, 'filled');  % Scatter plot for ED_without_TMS
-hold on;
-
-% Plot the regression line (using the selected model)
-fitted_line = b0 + bV * Setup_numeric;  % Adjust indexing based on predictors in the model
-plot(Setup_numeric, fitted_line, '-r', 'LineWidth', 2);
-
-% Add labels and title
-title('Stepwise Regression for ED Without TMS by Setup');
-xlabel('Setup (Numeric)');
-ylabel('ED Without TMS');
-hold off;
-
-
+% Decision on polynomial regression
+fprintf('\n===========================\n');
+fprintf('Polynomial Regression Suggestion:\n');
+fprintf('===========================\n');
+for i = 1:height(result_table)
+    if result_table.Adjusted_R_squared(i) < 0.5
+        fprintf('For case %s, consider exploring polynomial regression.\n', result_table.Case{i});
+    else
+        fprintf('For case %s, the linear model seems sufficient.\n', result_table.Case{i});
+    end
+end
