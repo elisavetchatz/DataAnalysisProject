@@ -26,6 +26,13 @@ function analyze_linear(data, TMS_value)
         fprintf('Significant correlation for TMS = %d.\n', TMS_value);
     end
     
+
+    % Standardize the residuals
+    r_standardized = r  / std(r);
+    
+    % Plot standardized residuals
+    
+    
     % Plot data and fitted regression line
     figure;
     scatter(Setup_numeric, y, 'filled');
@@ -40,9 +47,15 @@ function analyze_linear(data, TMS_value)
     
     % Plot residuals to check model adequacy
     figure;
-    plot(r, 'o');
-    title(sprintf('Residuals for Linear Model (TMS = %d)', TMS_value));
+    plot(r_standardized, 'o');
+    hold on;
+    yline(2, '--r');
+    yline(-2, '--r');
+    plot(r_standardized, 'o');
+    title(sprintf('Standardized Residuals for Linear Model (TMS = %d)', TMS_value));
     xlabel('Observation');
-    ylabel('Residual');
+    ylabel('Standardized Residual');
     grid on;
+    hold off;
+
 end
