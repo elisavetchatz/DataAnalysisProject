@@ -38,6 +38,14 @@ function analyze_polynomial(data, TMS_value)
         legend('Data points', 'Fitted polynomial');
         grid on;
         hold off;
+
+        % Plot residuals to check model adequacy
+        figure;
+        plot(r, 'o');
+        title(sprintf('Residuals for Polynomial Model (Degree %d) for TMS = %d', degree, TMS_value));
+        xlabel('Observation');
+        ylabel('Residual');
+        grid on;
     end
     
     % Display R^2 values for all polynomial degrees

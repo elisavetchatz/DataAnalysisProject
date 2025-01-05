@@ -1,4 +1,3 @@
-
 % Linear analysis
 function analyze_linear(data, TMS_value)
     % Filter the data for the specified TMS value

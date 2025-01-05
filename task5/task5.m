@@ -43,3 +43,5 @@ analyze_polynomial(data, 1);
 % - The dependency between EDduration and Setup is more pronounced when TMS is applied.
 % - Linear models are insufficient in both cases.
 % - Polynomial models (especially of degree 3) provide better fit and uncover nonlinear relationships.
+
+%we could add some plot analysis 
