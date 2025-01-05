@@ -108,12 +108,6 @@ disp('Model Comparison Results without Spike:');
 disp(results_table_no_spike);
 
 
-%comparison of the models with and without spike
-
-% Full Model - MSE: 62.0814, Adjusted R^2: 0.0407
-% 1. Adding x5, FStat = 4.6194, pValue = 0.034154
-% Stepwise Model - MSE: 62.3642, Adjusted R^2: 0.0363
-% LASSO Model - MSE: 61.4216, Adjusted R^2: 0.0509
 
 % Model Comparison Results:
 %           Model            MSE      Adjusted_R2
@@ -130,3 +124,20 @@ disp(results_table_no_spike);
 %     {'Full Model'    }    110.93      0.24253  
 %     {'Stepwise Model'}    83.753      0.42808  
 %     {'LASSO Model'   }    110.93      0.24253  
+
+% === Analysis and Conclusions ===
+% For the case with TMS, we explored multiple regression models using Setup, Stimuli, Intensity, Spike, 
+% Frequency, and CoilCode. 
+
+% --- With Spike ---
+% Note: For the analysis with Spike, we used only rows with valid Spike values, reducing the dataset.
+% Conclusion: The LASSO model performed best, handling multicollinearity and selecting the most relevant predictors.
+
+% --- Without Spike ---
+% Conclusion: The Stepwise Model performed best without Spike, indicating that Spike may introduce noise 
+% or redundancy. 
+
+% --- Final Recommendation ---
+% - Use the LASSO model with Spike for robust performance.
+% - Use the Stepwise Model without Spike for better Adjusted R^2 and error reduction.
+% - Proper handling of missing Spike values was essential for reliable analysis.
