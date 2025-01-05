@@ -13,41 +13,35 @@ data_without_TMS = data(data.TMS == 0, :);
 % Get EDduration without TMS
 ED_without_TMS = data_without_TMS.EDduration;
 
-% Get Setup as a numeric variable
+% Get all unique setups for rows where TMS == 0
+setups = unique(data_without_TMS.Setup);
+num_setups = length(setups);
+
 Setup_numeric = double(categorical(data_without_TMS.Setup));
-
-% Prepare independent variables matrix (predictors)
-X = [Setup_numeric]; 
-
-% Dependent variable (EDduration)
+xM = [ones(length(Setup_numeric), 1), Setup_numeric];
 y = ED_without_TMS;
 
-% Perform stepwise regression
-[bV, sdbV, pvalV, inmodel, stats] = stepwisefit(X, y);
+% Fit a linear model for ED_without_TMS by numeric Setup
+[b, bint, r, ~, stats] = regress(y, xM);
 
-% Extract the intercept
-b0 = stats.intercept;
+yhat = b(1) + Setup_numeric * b(2);
 
-% Display results
-disp('Stepwise Regression Results:');
-disp('Selected Coefficients:');
-disp(bV(inmodel));  % Coefficients of selected predictors
-disp('Intercept:');
-disp(b0);
+% Check if ED duration is correlated with setup
+% bint stores a 95% ci 
+if bint(2, 1) < 0 && bint(2, 1)
+    fprintf("Data is uncorrelated.")
+else
+    fprintf("Data is correlated.")
+end
 
-% Plot the data and regression line
+% Plot the results
 figure;
-scatter(Setup_numeric, y, 'filled');  % Scatter plot for ED_without_TMS
+scatter(Setup_numeric, y, 'filled');
 hold on;
-
-% Plot the regression line (using the selected model)
-fitted_line = b0 + bV * Setup_numeric;  % Adjust indexing based on predictors in the model
-plot(Setup_numeric, fitted_line, '-r', 'LineWidth', 2);
-
-% Add labels and title
-title('Stepwise Regression for ED Without TMS by Setup');
-xlabel('Setup (Numeric)');
-ylabel('ED Without TMS');
+plot(Setup_numeric, yhat, '-r');
+xlabel('Setup (numeric)');
+ylabel('EDduration without TMS');
+title('Linear Regression of EDduration without TMS by Setup');
+legend('Data points', 'Fitted line');
+grid on;
 hold off;
-
-
