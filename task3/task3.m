@@ -106,19 +106,6 @@ xlabel('Setup');
 
 % -------------------- Conclusion --------------------
 
-% Mathematical Analysis and Discussion:
-% - Histograms show the distribution of ED durations, with overlaid normal distribution curves.
-% - The bootstrap resampling results show the variability in the means of ED durations across the setups.
-% - The Chi-square p-values provide insight into how well the data fits a normal distribution.
-%   If the p-value is below the threshold (0.05), we reject the hypothesis that the data follows a normal distribution.
-% - From the boxplots, we can see the spread of the bootstrap means for each setup and determine whether the presence of TMS
-%   affects the variability in ED durations.
-
-% Based on the statistical tests:
-% - The Chi-square test may indicate that the distribution of ED durations is not perfectly normal for both with and without TMS,
-%   leading us to use bootstrap for confidence intervals.
-% - The confidence intervals provide an estimate of the uncertainty around the mean ED duration for each setup.
-
 % The results are the following:
 % Mean ED Duration without TMS: 13.26 seconds
 % Mean ED Duration with TMS: 12.19 seconds
@@ -133,4 +120,20 @@ xlabel('Setup');
 %     {[-16.4657 127.9657]}           "Yes"            {[-8.3060 90.4685]}          "Yes"
 
 
-% We observe that for both with and without TMS, the mean ED duration falls outside the confidence intervals for all setups, except for Setup 1 and 2.
+% General Agreement:
+% - Setups 1, 2, 3, 5, and 6 accept H0 in both conditions (with and without TMS),
+%   indicating that their mean values do not significantly differ from μ0.
+% - Setup 4 rejects H0 for the TMS condition, suggesting a potential effect of TMS.
+
+% Variance Differences:
+% - Setups 3 and 6 have exceptionally large confidence intervals,
+%   which reduces the reliability of the conclusions.
+% - This is likely due to small sample sizes or high variability in the data.
+
+% Overall TMS Effect:
+% - TMS does not appear to significantly affect the mean ED durations in most setups.
+% - However, in Setup 4, a notable reduction in the mean duration is observed.
+
+% Data Issues:
+% - Negative bounds in Setups 3, 5, and 6 indicate that the analysis might require
+%   more data or a different approach (e.g., one-sided hypothesis testing).
