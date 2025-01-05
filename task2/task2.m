@@ -1,6 +1,13 @@
 %Group40Exe2
 
-data = readtable('TMS.xlsx');
+% Read the data from the file
+current_file_path = mfilename('fullpath');
+[parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
+data_path = fullfile(parent_folder, 'TMS.xlsx');
+if ~exist(data_path, 'file')
+    error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
+end
+data = readtable(data_path);  
 
 % Extract relevant columns for ED duration with different coil codes
 ED_coil_one = data.EDduration(strcmp(data.CoilCode, '1'));

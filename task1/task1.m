@@ -1,12 +1,19 @@
 %Group40Exe1
 
-data = readtable('TMS.xlsx');
+% Read the data from the file
+current_file_path = mfilename('fullpath');
+[parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
+data_path = fullfile(parent_folder, 'TMS.xlsx');
+if ~exist(data_path, 'file')
+    error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
+end
+data = readtable(data_path);  
 
 % Extract relevant columns for ED duration with and without TMS
 ED_with_TMS = data.EDduration(data.TMS == 1);
 ED_without_TMS = data.EDduration(data.TMS == 0);
 
-% Remove missing values to be safe 
+% Remove missing values to be safe
 ED_with_TMS = ED_with_TMS(~isnan(ED_with_TMS));
 ED_without_TMS = ED_without_TMS(~isnan(ED_without_TMS));
 
@@ -20,7 +27,7 @@ warning('off', 'all'); % Suppress warnings for better output readability
 [best_fit_without, ~, ~] = test_goodness_of_fit(ED_without_TMS, dist_names);
 
 
-num_bins = ceil(sqrt(length(ED_with_TMS))); % Number of bins (rule of thumb)
+num_bins = round(sqrt(length(ED_with_TMS))); % Number of bins (rule of thumb)
 bin_edges = linspace(min([ED_with_TMS; ED_without_TMS]), max([ED_with_TMS; ED_without_TMS]), num_bins);
 
 
