@@ -101,3 +101,27 @@ results_table_refit = table({'Stepwise Model (Refit)'; 'LASSO Model (Refit)'}, .
 
 disp('Model Comparison Results (Refit in Training Set):');
 disp(results_table_refit);
+
+%Model Comparison Results (Initial Variable Selection):
+% Model            MSE  
+% __________________    ______
+
+% {'Full Model'    }    207.22
+% {'Stepwise Model'}    188.17
+% {'LASSO Model'   }    274.55
+
+% %Model Comparison Results (Refit in Training Set):
+% Model                MSE  
+% __________________________    ______
+
+% {'Stepwise Model (Refit)'}     199.2
+% {'LASSO Model (Refit)'   }    208.79
+
+% === Analysis and Conclusions ===
+% - Stepwise Model performed best in both initial analysis (MSE = 188.17) and refit (MSE = 199.2).
+% - Full Model showed higher error (MSE = 207.22), indicating less effective predictor selection.
+% - LASSO Model underperformed in the initial analysis (MSE = 274.55) and refit (MSE = 208.79).
+%
+% Recommendations:
+% - Use Stepwise Model for best balance between accuracy and simplicity.
+% - Exclude Spike variable as it improved overall model reliability and accuracy.
