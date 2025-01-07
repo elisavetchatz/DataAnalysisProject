@@ -26,6 +26,10 @@ function analyze_polynomial(data, TMS_value)
         
         % Compute predicted values
         yhat = xM * b;
+
+        % Standardize residuals
+        r_standardized = r / std(r);
+
         
         % Plot data and fitted polynomial model
         figure;
@@ -41,11 +45,17 @@ function analyze_polynomial(data, TMS_value)
 
         % Plot residuals to check model adequacy
         figure;
-        plot(r, 'o');
+        plot(r_standardized, 'o');
+        hold on;
+        yline(2, '--r');
+        yline(-2, '--r');
+        plot(r_standardized, 'o');
         title(sprintf('Residuals for Polynomial Model (Degree %d) for TMS = %d', degree, TMS_value));
         xlabel('Observation');
-        ylabel('Residual');
+        ylabel('Standardized Residual');
         grid on;
+        hold off;
+        length(r_standardized)
     end
     
     % Display R^2 values for all polynomial degrees
