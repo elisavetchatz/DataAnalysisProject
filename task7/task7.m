@@ -12,8 +12,14 @@ end
 data = readtable(data_path);
 data_with_TMS = data(data.TMS == 1, :);
 
+% === Strategy Based on Task 6 ===
+% Decision: Use data WITHOUT Spike based on Task 6 results (better 
+% performance without Spike)
+% Remove Spike variable
+data_with_TMS_NoSpike = removevars(data_with_TMS, 'Spike');
+
 % Ensure all columns are numeric
-columns_to_convert = {'Setup', 'Stimuli', 'Intensity', 'Spike', 'Frequency', 'CoilCode'};
+columns_to_convert = {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'};
 for i = 1:length(columns_to_convert)
     column = columns_to_convert{i};
     if iscell(data_with_TMS.(column))
@@ -23,7 +29,7 @@ for i = 1:length(columns_to_convert)
 end
 
 % Select variables
-indepedent_vars = table2array(data_with_TMS(:, {'Setup', 'Stimuli', 'Intensity', 'Spike', 'Frequency', 'CoilCode'}));
+indepedent_vars = table2array(data_with_TMS(:, {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'}));
 EDduration = data_with_TMS.EDduration;
 
 % Split data into training and testing sets
