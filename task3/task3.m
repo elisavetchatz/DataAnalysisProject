@@ -1,13 +1,14 @@
 % Group40Exe3
 
 % Read the data from the file
+warning('off', 'all');
 current_file_path = mfilename('fullpath');
 [parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
 data_path = fullfile(parent_folder, 'TMS.xlsx');
 if ~exist(data_path, 'file')
     error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
 end
-data = readtable(data_path);  
+data = readtable(data_path);
 
 % Extract ED duration data for both TMS and no TMS
 ED_without_TMS = data.EDduration(data.TMS == 0);
@@ -22,10 +23,12 @@ sigma_with_TMS = std(ED_with_TMS);
 num_resamples = 1000;
 
 % Without TMS
-[ci_without_TMS, bootstrap_means_without_TMS, p_values_without_TMS] = calculate_confidence_intervals(data, num_resamples, sigma_without_TMS, mu_without_TMS);
+useTMS = 0;
+[ci_without_TMS, bootstrap_means_without_TMS, p_values_without_TMS] = calculate_confidence_intervals(data, num_resamples, useTMS);
 
 % With TMS
-[ci_with_TMS, bootstrap_means_with_TMS, p_values_with_TMS] = calculate_confidence_intervals(data, num_resamples, sigma_with_TMS, mu_with_TMS);
+useTMS = 1;
+[ci_with_TMS, bootstrap_means_with_TMS, p_values_with_TMS] = calculate_confidence_intervals(data, num_resamples, useTMS);
 
 results_table = table('Size', [6, 4], 'VariableTypes', {'cell', 'string', 'cell', 'string'}, 'VariableNames', {'CI_Without_TMS', 'Accepted_Without_TMS', 'CI_With_TMS', 'Accepted_With_TMS'});
 
@@ -41,13 +44,13 @@ for setup_num=1:6
     else
         results_table.Accepted_Without_TMS(setup_num) = "No";
     end
-    
+
     if mu_with_TMS >= ci_with_TMS{setup_num}(1) && mu_with_TMS <= ci_with_TMS{setup_num}(2)
         results_table.Accepted_With_TMS(setup_num) = "Yes";
     else
         results_table.Accepted_With_TMS(setup_num) = "No";
     end
-    
+
 end
 
 % Display the table with the results
@@ -103,31 +106,34 @@ xlabel('Setup');
 
 % -------------------- Conclusion --------------------
 
-% Mathematical Analysis and Discussion:
-% - Histograms show the distribution of ED durations, with overlaid normal distribution curves.
-% - The bootstrap resampling results show the variability in the means of ED durations across the setups.
-% - The Chi-square p-values provide insight into how well the data fits a normal distribution.
-%   If the p-value is below the threshold (0.05), we reject the hypothesis that the data follows a normal distribution.
-% - From the boxplots, we can see the spread of the bootstrap means for each setup and determine whether the presence of TMS
-%   affects the variability in ED durations.
-
-% Based on the statistical tests:
-% - The Chi-square test may indicate that the distribution of ED durations is not perfectly normal for both with and without TMS,
-%   leading us to use bootstrap for confidence intervals.
-% - The confidence intervals provide an estimate of the uncertainty around the mean ED duration for each setup.
-
 % The results are the following:
-%Mean ED Duration without TMS: 13.26 seconds
+% Mean ED Duration without TMS: 13.26 seconds
 % Mean ED Duration with TMS: 12.19 seconds
-%   CI_Without_TMS       Accepted_Without_TMS        CI_With_TMS         Accepted_With_TMS
-% ___________________    ____________________    ____________________    _________________
+%        CI_Without_TMS        Accepted_Without_TMS        CI_With_TMS        Accepted_With_TMS
+%     _____________________    ____________________    ___________________    _________________
 
-% {[  6.3620 7.3805]}            "No"            {[-11.5235 35.9127]}          "Yes"      
-% {[  8.4048 9.4167]}            "No"            {[   8.5238 9.4405]}          "No"       
-% {[14.5556 19.3611]}            "No"            {[ 12.2222 18.8889]}          "No"       
-% {[  6.0500 6.8011]}            "No"            {[   6.2045 6.7270]}          "No"       
-% {[  3.6091 4.0636]}            "No"            {[   3.1364 4.1727]}          "No"       
-% {[     30 31.5000]}            "No"            {[      30 31.5000]}          "No"       
+%     {[   8.1620 20.0700]}           "Yes"            {[-8.8424 35.4787]}          "Yes"
+%     {[   9.8214 14.4286]}           "Yes"            {[ 0.0859 16.8085]}          "Yes"
+%     {[  -0.6688 58.8910]}           "Yes"            {[-0.9686 32.4924]}          "Yes"
+%     {[  -4.7649 22.4899]}           "Yes"            {[  6.1918 9.4608]}          "No"
+%     {[  -1.3668 14.4214]}           "Yes"            {[-4.5856 21.3856]}          "Yes"
+%     {[-16.4657 127.9657]}           "Yes"            {[-8.3060 90.4685]}          "Yes"
 
 
-% We observe that for both with and without TMS, the mean ED duration falls outside the confidence intervals for all setups, except for Setup 1 with TMS.
+% General Agreement:
+% - Setups 1, 2, 3, 5, and 6 accept H0 in both conditions (with and without TMS),
+%   indicating that their mean values do not significantly differ from μ0.
+% - Setup 4 rejects H0 for the TMS condition, suggesting a potential effect of TMS.
+
+% Variance Differences:
+% - Setups 3 and 6 have exceptionally large confidence intervals,
+%   which reduces the reliability of the conclusions.
+% - This is likely due to small sample sizes or high variability in the data.
+
+% Overall TMS Effect:
+% - TMS does not appear to significantly affect the mean ED durations in most setups.
+% - However, in Setup 4, a notable reduction in the mean duration is observed.
+
+% Data Issues:
+% - Negative bounds in Setups 3, 5, and 6 indicate that the analysis might require
+%   more data or a different approach (e.g., one-sided hypothesis testing).

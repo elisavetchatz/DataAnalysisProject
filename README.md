@@ -67,4 +67,3 @@ This project highlights the potential of statistical modeling in understanding t
 ## Authors
 - Group 40
 - December 2024
-
