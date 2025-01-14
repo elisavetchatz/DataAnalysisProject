@@ -108,24 +108,7 @@ results_table_no_spike = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, 
 
 disp('Model Comparison Results without Spike:');
 disp(results_table_no_spike);
-
-
-
-% Model Comparison Results:
-%           Model            MSE      Adjusted_R2
-%     __________________    ______    ___________
-
-%     {'Full Model'    }    62.081     0.040702  
-%     {'Stepwise Model'}    62.364     0.036332  
-%     {'LASSO Model'   }    61.422     0.050898    
-
-% Model Comparison Results without Spike:
-%           Model            MSE      Adjusted_R2
-%     __________________    ______    ___________
-
-%     {'Full Model'    }    110.93      0.24253  
-%     {'Stepwise Model'}    83.753      0.42808  
-%     {'LASSO Model'   }    110.93      0.24253  
+ 
 
 % === Analysis and Conclusions ===
 % For the case with TMS, we explored multiple regression models using Setup, Stimuli, Intensity, Spike, 

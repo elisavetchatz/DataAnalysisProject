@@ -67,15 +67,6 @@ for i = 1:length(setup_numbers)
     legend('Random r Values', 'True r Value', 'Alpha 0.05 Interval');
 end
 
-% Create result table
-result_table = table(setup_numbers', true_r, p_parametric, p_randomization, ...
-    'VariableNames', {'Setup', 'True_r', 'Parametric_p', 'Randomization_p'});
-
-% Display the results in a uitable
-f = figure('Name', 'Results Table', 'Position', [100, 100, 600, 400]);
-uitable('Parent', f, 'Data', result_table{:,:}, 'ColumnName', result_table.Properties.VariableNames, ...
-    'Position', [20, 20, 560, 360]);
-
 % COMMENTS ON RESULTS
 
 % Setup 1:
@@ -85,27 +76,27 @@ uitable('Parent', f, 'Data', result_table{:,:}, 'ColumnName', result_table.Prope
 
 % Setup 2:
 % Pearson r = -0.1693, Parametric p = 0.3235, Randomization p = 0.2980
-% Weak negative correlation, not statistically significant.
+% Weak negative correlation
 
 % Setup 3:
-% Pearson r = 0.0111, Parametric p = 0.9619, Randomization p = 0.9650
+% Pearson r = 0.0111, Parametric p = 0.9619, Randomization p = 0.964
 % Practically no correlation; no evidence of a relationship between preTMS and postTMS.
 
 % Setup 4:
 % Pearson r = 0.3404, Parametric p = 0.0610, Randomization p = 0.0610
-% Close to the significance threshold (p = 0.05). Moderate positive correlation, 
-% worth further exploration.
+% Close to the significance threshold (p = 0.05). Moderate positive correlation.
 
 % Setup 5:
-% Pearson r = -0.1483, Parametric p = 0.6455, Randomization p = 0.5860
-% Very weak negative correlation, not statistically significant.
+% Pearson r = -0.1483, Parametric p = 0.6455, Randomization p = 0.5740
+% Very weak negative correlation
 
 % Setup 6:
 % Pearson r = -0.2755, Parametric p = 0.5090, Randomization p = 0.4140
-% Weak negative correlation, not statistically significant.
+% Weak negative correlation
 
 % SUMMARY:
-% - None of the setups exhibit statistically significant correlation (p > 0.05).
-% - Setup 4 shows the strongest indication of a relationship but does not reach significance.
+% - None of the setups exhibit statistically significant correlation, based on p-value critiria (p>0.05). 
+% - Pvalue is a matrix of p-values for testing the hypothesis of no correlation against the alternative that there is a non-zero correlation. 
+% - Setup 4 shows the strongest indication of correlation.
 % - Parametric and randomization p-values are consistent, suggesting agreement between the two methods.
-% - For these small sample sizes, the randomization test is more robust and reliable.
+% - For these small sample sizes, the randomization test is more reliable.

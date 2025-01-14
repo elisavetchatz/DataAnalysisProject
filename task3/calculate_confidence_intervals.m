@@ -13,6 +13,7 @@ function [ci, bootstrap_means, p_values] = calculate_confidence_intervals(data, 
         % Test for normality in each setup
         % Fit a normal distribution to the data
         pd = fitdist(ED_samples{setup_num}, 'Normal');
+        fprintf('%d. length of data: %d\n', setup_num, length(ED_samples{setup_num}));
         mu_setup = pd.mu;
         sigma_setup = pd.sigma;
         norm_cdf = @(x) cdf(pd, x);

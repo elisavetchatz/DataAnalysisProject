@@ -8,7 +8,7 @@ function analyze_polynomial(data, TMS_value)
     Setup_numeric = double(categorical(data_filtered.Setup));
     
     % Prepare polynomial degrees for analysis
-    degrees = [1, 2, 3]; % Linear, quadratic, cubic models
+    degrees = [1, 2, 3]; % quadratic and cubic models
     R2_values = zeros(length(degrees), 1); % Store R^2 for each model
     
     for i = 1:length(degrees)
@@ -26,13 +26,15 @@ function analyze_polynomial(data, TMS_value)
         
         % Compute predicted values
         yhat = xM * b;
-
+        
         % Standardize residuals
         r_standardized = r / std(r);
-
         
-        % Plot data and fitted polynomial model
+        % Create figure with subplots
         figure;
+        
+        % First subplot: Data and fitted polynomial model
+        subplot(2, 1, 1);
         scatter(Setup_numeric, EDduration, 'filled');
         hold on;
         plot(sort(Setup_numeric), sort(yhat), '-r', 'LineWidth', 1.5);
@@ -42,21 +44,20 @@ function analyze_polynomial(data, TMS_value)
         legend('Data points', 'Fitted polynomial');
         grid on;
         hold off;
-
-        % Plot residuals to check model adequacy
-        figure;
+        
+        % Second subplot: Residuals
+        subplot(2, 1, 2);
         plot(r_standardized, 'o');
         hold on;
         yline(2, '--r');
         yline(-2, '--r');
-        plot(r_standardized, 'o');
         title(sprintf('Residuals for Polynomial Model (Degree %d) for TMS = %d', degree, TMS_value));
         xlabel('Observation');
         ylabel('Standardized Residual');
         grid on;
         hold off;
-        length(r_standardized)
     end
+    
     
     % Display R^2 values for all polynomial degrees
     fprintf('Polynomial Models - R^2 values for TMS = %d:\n', TMS_value);
