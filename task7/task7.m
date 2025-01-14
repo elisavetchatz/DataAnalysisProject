@@ -1,4 +1,7 @@
 %Group40Ex7
+%%
+% From full lasso model
+lambda_task6 = 0.1302;
 
 % Load the data
 current_file_path = mfilename('fullpath');
@@ -22,15 +25,15 @@ data_with_TMS_NoSpike = removevars(data_with_TMS, 'Spike');
 columns_to_convert = {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'};
 for i = 1:length(columns_to_convert)
     column = columns_to_convert{i};
-    if iscell(data_with_TMS.(column))
-        data_with_TMS.(column) = cellfun(@(x) str2double(x), data_with_TMS.(column), 'UniformOutput', false);
-        data_with_TMS.(column) = cell2mat(data_with_TMS.(column));
+    if iscell(data_with_TMS_NoSpike.(column))
+        data_with_TMS_NoSpike.(column) = cellfun(@(x) str2double(x), data_with_TMS_NoSpike.(column), 'UniformOutput', false);
+        data_with_TMS_NoSpike.(column) = cell2mat(data_with_TMS_NoSpike.(column));
     end
 end
 
 % Select variables
-indepedent_vars = table2array(data_with_TMS(:, {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'}));
-EDduration = data_with_TMS.EDduration;
+indepedent_vars = table2array(data_with_TMS_NoSpike(:, {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'}));
+EDduration = data_with_TMS_NoSpike.EDduration;
 
 % Split data into training and testing sets
 rng(1); % For reproducibility
@@ -43,8 +46,19 @@ Y_train = EDduration(train_idx);
 X_test = indepedent_vars(test_idx, :);
 Y_test = EDduration(test_idx);
 
+X_full = indepedent_vars;
+y_full = EDduration;
+
+%Normalize the data
+mx_train = mean(X_train);
+X_train = X_train - repmat(mx_train, size(X_train, 1), 1);
+
+Y_train = Y_train - mean(Y_train);
+
+X_test_centered = X_test - repmat(mx_train, size(X_test, 1), 1);
+
 % --- Full Model ---
-lm_full = fitlm(X_train, Y_train);
+lm_full = fitlm(X_full, y_full);
 Y_pred_full = predict(lm_full, X_test);
 mse_full = mean((Y_test - Y_pred_full).^2);
 
@@ -54,15 +68,22 @@ Y_pred_stepwise = predict(lm_stepwise, X_test);
 mse_stepwise = mean((Y_test - Y_pred_stepwise).^2);
 
 % --- LASSO Model ---
-[beta, fitinfo] = lasso(X_train, Y_train, 'CV', 10);
-lambda_optimal = fitinfo.LambdaMinMSE;
-selected_vars = find(beta(:, fitinfo.IndexMinMSE) ~= 0);
-X_train_lasso = X_train(:, selected_vars);
-X_test_lasso = X_test(:, selected_vars);
+[beta, fitinfo] = lasso(X_full, y_full, 'CV', 10); 
+% lambda_optimal = fitinfo.LambdaMinMSE;
+% lassoPlot(beta, fitinfo, 'PlotType', 'Lambda', 'XScale', 'log');
+lambda_optimal = input('Give lambda > ');
+[lmin, ilmin] = min(abs(fitinfo.Lambda - lambda_optimal));
+bLASSOV = beta(:, ilmin);
 
-lm_lasso = fitlm(X_train_lasso, Y_train);
-Y_pred_lasso = predict(lm_lasso, X_test_lasso);
-mse_lasso = mean((Y_test - Y_pred_lasso).^2);
+mxV = mean(X_test);
+my = mean(Y_test);
+
+bLASSOV = [my - mxV*bLASSOV; bLASSOV];
+yfitLASSOV = [ones(length(Y_test),1) X_test] * bLASSOV; 
+mse_lasso = mean((Y_test - yfitLASSOV).^2);
+disp(mse_lasso);
+%%
+
 
 % --- Results ---
 results_table = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
@@ -85,15 +106,17 @@ mse_stepwise_refit = mean((Y_test - Y_pred_stepwise_refit).^2);
 
 % --- LASSO Model with Training Selection ---
 [beta_train, fitinfo_train] = lasso(X_train, Y_train, 'CV', 10);
-lambda_optimal_train = fitinfo_train.LambdaMinMSE;
-selected_vars_lasso_train = find(beta_train(:, fitinfo_train.IndexMinMSE) ~= 0);
-X_train_lasso_train = X_train(:, selected_vars_lasso_train);
-X_test_lasso_train = X_test(:, selected_vars_lasso_train);
+lambda_optimal = input('Give lambda > ');
+[lmin, ilmin] = min(abs(fitinfo.Lambda - lambda_optimal));
+bLASSOV = beta_train(:, ilmin);
 
-lm_lasso_refit = fitlm(X_train_lasso_train, Y_train);
-Y_pred_lasso_refit = predict(lm_lasso_refit, X_test_lasso_train);
-mse_lasso_refit = mean((Y_test - Y_pred_lasso_refit).^2);
+mxV = mean(X_test);
+my = mean(Y_test);
 
+bLASSOV = [my - mxV*bLASSOV; bLASSOV];
+yfitLASSOV = [ones(length(Y_test),1) X_test] * bLASSOV; 
+mse_lasso_refit = mean((Y_test - yfitLASSOV).^2);
+disp(mse_lasso_refit);
 % --- Results ---
 results_table_refit = table({'Stepwise Model (Refit)'; 'LASSO Model (Refit)'}, ...
                              [mse_stepwise_refit; mse_lasso_refit], ...

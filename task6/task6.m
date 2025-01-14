@@ -97,6 +97,8 @@ selected_vars_no_spike = find(beta_no_spike(:, fitinfo_no_spike.IndexMinMSE) ~= 
 lm_lasso_no_spike = fitlm(indepedent_vars_NoSpike(:, selected_vars_no_spike), EDduration_NoSpike);
 mse_lasso_no_spike = lm_lasso_no_spike.MSE;
 r2_lasso_no_spike = lm_lasso_no_spike.Rsquared.Adjusted;
+%disp(lambda_optimal_no_spike);
+
 
 % Results comparison without Spike
 results_table_no_spike = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
