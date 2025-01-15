@@ -1,4 +1,6 @@
 % Group40Ex6
+warning('off', 'all');
+seed_value=1;
 
 % Read the data from the file
 current_file_path = mfilename('fullpath');
@@ -33,32 +35,51 @@ end
 indepedent_vars = table2array(data_with_TMS_Spike(:, {'Setup', 'Stimuli', 'Intensity', 'Spike', 'Frequency', 'CoilCode'}));
 EDduration = data_with_TMS_Spike.EDduration;
 
+% Normalize the data
+mx = mean(indepedent_vars);
+X = indepedent_vars - mx;
+y = EDduration - mean(EDduration);
+
 % === Analysis with Spike ===
 % --- Full Model ---
-lm_full = fitlm(indepedent_vars, EDduration);
-mse_full = lm_full.MSE;
+lm_full = fitlm(X, y);
+y_pred_full = predict(lm_full, X);
+mse_full = mean((y - y_pred_full).^2);
 r2_full = lm_full.Rsquared.Adjusted;
-fprintf('Full Model - MSE: %.4f, Adjusted R^2: %.4f\n', mse_full, r2_full);
 
 % --- Stepwise Regression ---
-lm_stepwise = stepwiselm(indepedent_vars, EDduration);
-mse_stepwise = lm_stepwise.MSE;
-r2_stepwise = lm_stepwise.Rsquared.Adjusted;
-fprintf('Stepwise Model - MSE: %.4f, Adjusted R^2: %.4f\n', mse_stepwise, r2_stepwise);
+lm_stepwise = stepwiselm(X, y, 'Verbose', 0);
+y_pred_stepwise = predict(lm_stepwise, X);
+mse_stepwise = mean((y - y_pred_stepwise).^2);
+% mse_stepwise_manual = lm_stepwise.MSE;
+% fprintf('MSE Stepwise Manual: %.4f, MSE Stepwise: %.4f\n', mse_stepwise_manual, mse_stepwise);
+r2_stepwise_adj = lm_stepwise.Rsquared.Adjusted;
 
 % --- LASSO Model ---
-[beta, fitinfo] = lasso(indepedent_vars, EDduration, 'CV', 10);
+rng(seed_value); 
+[beta, fitinfo] = lasso(X, y, 'CV', 10);
 lambda_optimal = fitinfo.LambdaMinMSE;
-selected_vars = find(beta(:, fitinfo.IndexMinMSE) ~= 0);
-lm_lasso = fitlm(indepedent_vars(:, selected_vars), EDduration);
-mse_lasso = lm_lasso.MSE;
-r2_lasso = lm_lasso.Rsquared.Adjusted;
-fprintf('LASSO Model - MSE: %.4f, Adjusted R^2: %.4f\n', mse_lasso, r2_lasso);
+disp(lambda_optimal);
+[~, ilmin] = min(abs(fitinfo.Lambda - lambda_optimal));
+bLASSOV = beta(:, ilmin);
+mxV = mean(X);
+my = mean(y);
+bLASSOV = [my - mxV*bLASSOV; bLASSOV];
+yfitLASSOV = [ones(length(y), 1) X] * bLASSOV;
+
+% Calculate MSE and R^2 for LASSO
+resLASSOV = yfitLASSOV - y;
+mse_lasso = mean(resLASSOV .^ 2);
+RSSLASSO = sum(resLASSOV .^ 2);
+TSS = sum((y - mean(y)) .^ 2);
+r2_LASSO = 1 - RSSLASSO / TSS;
+r2_lasso_adj = 1 - (1 - r2_LASSO) * (length(y) - 1) / (length(y) - size(X, 2) - 1);
+fprintf('R^2 LASSO: %.4f, Adjusted R^2 LASSO: %.4f\n', r2_LASSO, r2_lasso_adj);
 
 % Results comparison
 results_table = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
                       [mse_full; mse_stepwise; mse_lasso], ...
-                      [r2_full; r2_stepwise; r2_lasso], ...
+                      [r2_full; r2_stepwise_adj; r2_lasso_adj], ...
                       'VariableNames', {'Model', 'MSE', 'Adjusted_R2'});
 disp('Model Comparison Results:');
 disp(results_table);
@@ -80,49 +101,66 @@ end
 indepedent_vars_NoSpike = table2array(data_with_TMS_NoSpike(:, {'Setup', 'Stimuli', 'Intensity', 'Frequency', 'CoilCode'}));
 EDduration_NoSpike = data_with_TMS_NoSpike.EDduration;
 
+%Normalization
+mx_no_spike = mean(indepedent_vars_NoSpike);
+X_no_spike = indepedent_vars_NoSpike - mx_no_spike;
+y_no_spike = EDduration_NoSpike - mean(EDduration_NoSpike);
+
 % --- Full Model without Spike ---
-lm_full_no_spike = fitlm(indepedent_vars_NoSpike, EDduration_NoSpike);
-mse_full_no_spike = lm_full_no_spike.MSE;
-r2_full_no_spike = lm_full_no_spike.Rsquared.Adjusted;
+lm_full_no_spike = fitlm(X_no_spike, y_no_spike);
+y_pred_full_no_spike = predict(lm_full_no_spike, X_no_spike);
+mse_full_no_spike = mean((y_no_spike - y_pred_full_no_spike).^2);
+r2_full_no_spike_adj = lm_full_no_spike.Rsquared.Adjusted;
 
 % --- Stepwise Regression without Spike ---
-lm_stepwise_no_spike = stepwiselm(indepedent_vars_NoSpike, EDduration_NoSpike);
+lm_stepwise_no_spike = stepwiselm(X_no_spike, y_no_spike, 'Verbose', 0);
+%mse_stepwise_no_spike_manual = mean((y_no_spike - predict(lm_stepwise_no_spike, X_no_spike)).^2);
 mse_stepwise_no_spike = lm_stepwise_no_spike.MSE;
-r2_stepwise_no_spike = lm_stepwise_no_spike.Rsquared.Adjusted;
+%fprintf('MSE Stepwise Manual: %.4f, MSE Stepwise: %.4f\n', mse_stepwise_no_spike_manual, mse_stepwise_no_spike);
+r2_stepwise_no_spike_adj = lm_stepwise_no_spike.Rsquared.Adjusted;
 
 % --- LASSO Model without Spike ---
-[beta_no_spike, fitinfo_no_spike] = lasso(indepedent_vars_NoSpike, EDduration_NoSpike, 'CV', 10);
+rng(seed_value); 
+[beta_no_spike, fitinfo_no_spike] = lasso(X_no_spike, y_no_spike, 'CV', 10);
 lambda_optimal_no_spike = fitinfo_no_spike.LambdaMinMSE;
-selected_vars_no_spike = find(beta_no_spike(:, fitinfo_no_spike.IndexMinMSE) ~= 0);
-lm_lasso_no_spike = fitlm(indepedent_vars_NoSpike(:, selected_vars_no_spike), EDduration_NoSpike);
-mse_lasso_no_spike = lm_lasso_no_spike.MSE;
-r2_lasso_no_spike = lm_lasso_no_spike.Rsquared.Adjusted;
-%disp(lambda_optimal_no_spike);
+disp('Optimal Lambda without Spike:');
+disp(lambda_optimal_no_spike);
+
+[~, ilmin_no_spike] = min(abs(fitinfo_no_spike.Lambda - lambda_optimal_no_spike));
+bLASSOV_no_spike = beta_no_spike(:, ilmin_no_spike);
+mxV_no_spike = mean(X_no_spike);
+my_no_spike = mean(y_no_spike);
+bLASSOV_no_spike = [my_no_spike - mxV_no_spike * bLASSOV_no_spike; bLASSOV_no_spike];
+yfitLASSOV_no_spike = [ones(length(y_no_spike), 1) X_no_spike] * bLASSOV_no_spike;
+
+% Calculate MSE and R^2 for LASSO without Spike
+mse_lasso_no_spike = mean((y_no_spike - yfitLASSOV_no_spike).^2);
+r2_lasso_no_spike = 1 - sum((y_no_spike - yfitLASSOV_no_spike).^2) / sum((y_no_spike - mean(y_no_spike)).^2);
+r2_lasso_no_spike_adj = 1 - (1 - r2_lasso_no_spike) * (length(y_no_spike) - 1) / (length(y_no_spike) - size(X_no_spike, 2) - 1);
 
 
 % Results comparison without Spike
 results_table_no_spike = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
                                [mse_full_no_spike; mse_stepwise_no_spike; mse_lasso_no_spike], ...
-                               [r2_full_no_spike; r2_stepwise_no_spike; r2_lasso_no_spike], ...
+                               [r2_full_no_spike_adj; r2_stepwise_no_spike_adj; r2_lasso_no_spike_adj], ...
                                'VariableNames', {'Model', 'MSE', 'Adjusted_R2'});
 
 disp('Model Comparison Results without Spike:');
-disp(results_table_no_spike);
- 
-
-% === Analysis and Conclusions ===
-% For the case with TMS, we explored multiple regression models using Setup, Stimuli, Intensity, Spike, 
-% Frequency, and CoilCode. 
+disp(results_table_no_spike); 
 
 % --- With Spike ---
 % Note: For the analysis with Spike, we used only rows with valid Spike values, reducing the dataset.
-% Conclusion: The LASSO model performed best, handling multicollinearity and selecting the most relevant predictors.
+% - The Full Model has the lowest MSE (58.241) but a low adjusted R^2 (0.0407), indicating it does not fit the data well despite lower errors.
+% - The Stepwise Model has a slightly higher MSE (61.078) and a slightly lower adjusted R^2 (0.0363), showing it is less suitable than the Full Model.
+% - The LASSO Model has the highest MSE (61.725) and the lowest adjusted R^2 (0.0363), indicating it is less effective compared to the other two models.
 
 % --- Without Spike ---
-% Conclusion: The Stepwise Model performed best without Spike, indicating that Spike may introduce noise 
-% or redundancy. 
+% Note: For the analysis without Spike, we used the full dataset but removed the Spike variable.
+% - The Full Model has a much higher MSE (106.26) and a modest adjusted R^2 (0.2425), showing a decline in its performance without Spike.
+% - The Stepwise Model demonstrates the best performance with the lowest MSE (83.753) and the highest adjusted R^2 (0.4281), making it the most suitable model.
+% - The LASSO Model has the same MSE as the Full Model (106.26) but achieves a slightly higher adjusted R^2 (0.2682), making it better than the Full Model but less effective than the Stepwise Model.
 
 % --- Final Recommendation ---
-% - Use the LASSO model with Spike for robust performance.
-% - Use the Stepwise Model without Spike for better Adjusted R^2 and error reduction.
-% - Proper handling of missing Spike values was essential for reliable analysis.
+% - Use the Full Model when Spike is included, as it provides the lowest MSE, despite its low adjusted R^2.
+% - Use the Stepwise Model without Spike, as it provides the best adjusted R^2 and lowest MSE, making it the most effective choice.
+% - The LASSO Model does not perform as well in either case, making it a less suitable choice overall.
