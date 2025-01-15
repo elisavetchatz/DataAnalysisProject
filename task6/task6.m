@@ -35,7 +35,7 @@ end
 indepedent_vars = table2array(data_with_TMS_Spike(:, {'Setup', 'Stimuli', 'Intensity', 'Spike', 'Frequency', 'CoilCode'}));
 EDduration = data_with_TMS_Spike.EDduration;
 
-% Normalize the data
+% centering the data
 mx = mean(indepedent_vars);
 X = indepedent_vars - mx;
 y = EDduration - mean(EDduration);
@@ -152,7 +152,7 @@ disp(results_table_no_spike);
 % Note: For the analysis with Spike, we used only rows with valid Spike values, reducing the dataset.
 % - The Full Model has the lowest MSE (58.241) but a low adjusted R^2 (0.0407), indicating it does not fit the data well despite lower errors.
 % - The Stepwise Model has a slightly higher MSE (61.078) and a slightly lower adjusted R^2 (0.0363), showing it is less suitable than the Full Model.
-% - The LASSO Model has the highest MSE (61.725) and the lowest adjusted R^2 (0.0363), indicating it is less effective compared to the other two models.
+% - The LASSO Model has the highest MSE (61.725) and the lowest adjusted R^2, indicating it is less effective compared to the other two models.
 
 % --- Without Spike ---
 % Note: For the analysis without Spike, we used the full dataset but removed the Spike variable.

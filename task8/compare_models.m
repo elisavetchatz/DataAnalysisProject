@@ -51,6 +51,6 @@ function results_table = compare_models(X, y)
                           [r2_full_adj; r2_stepwise_adj; r2_lasso_adj; r2_PCR_adj], ...
                           'VariableNames', {'Model', 'MSE', 'Adjusted_R2'});
 
-    disp('Model Comparison Results without Spike:');
+    disp('Model Comparison Results:');
     disp(results_table);
 end
