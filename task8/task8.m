@@ -63,12 +63,15 @@ fprintf('Model with preTMS and postTMS variables\n');
 
 compare_models(X, y);
 
-% Conclusions
-% Stepwise model has the highest adjusted R^2
-% PCR model was chosen to keep 95% of the variance and it performed the worst compared to the other models.
-% Συγκριση μοντελων με pcr
-% Συγκριση με το task 5
+% Stepwise model achieved the highest adjusted R^2 and lowest MSE, proving its balance between simplicity and accuracy.
+% PCR, along with LASSO model, performed the worst, indicating that dimensionality reduction through PCR is less effective for this dataset.
 
-% The model with preTMS and postTMS variables has the highest adjusted R^2
-% Which indicates postTMS variable is a significant predictor of EDduration
-% αλλάζουν τα μοντελα με την εξτρα μεταβλητη?
+% Comparison with Task 5
+% Task 5 showed that TMS presence improved EDduration predictability, with higher R^2 values across all polynomial models.
+% Similarly, in Task 8, adding postTMS significantly boosted adjusted R^2, especially in the Stepwise model.
+
+% Model with preTMS and postTMS variables
+% Including the postTMS variable drastically improved performance. 
+% - Full and Stepwise models achieved nearly perfect fits (Adjusted R^2 = 1).
+% - LASSO and PCR models also improved but remained less effective than Stepwise.
+% These results confirm postTMS as a crucial predictor of EDduration, enhancing model accuracy and capturing complex relationships in the data.
