@@ -1,6 +1,5 @@
 # DataAnalysisProject
 
-
 # Analysis of Epileptic Discharge Duration Using TMS
 
 ## Project Overview

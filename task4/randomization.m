@@ -1,4 +1,8 @@
 function results = randomization(num_random_samples, preTMS, postTMS)
+    %randomization Test implementation
+    %create 1000 random samples of preTMS data and calculate correlation
+
+    
     results = struct();
     random_r = zeros(num_random_samples, 1);
     random_p = zeros(num_random_samples, 1);

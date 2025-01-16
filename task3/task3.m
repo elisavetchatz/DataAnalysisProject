@@ -105,35 +105,19 @@ ylabel('Mean ED Duration');
 xlabel('Setup');
 
 % -------------------- Conclusion --------------------
-
-% The results are the following:
-% Mean ED Duration without TMS: 13.26 seconds
-% Mean ED Duration with TMS: 12.19 seconds
-%        CI_Without_TMS        Accepted_Without_TMS        CI_With_TMS        Accepted_With_TMS
-%     _____________________    ____________________    ___________________    _________________
-
-%     {[   8.1620 20.0700]}           "Yes"            {[-8.8424 35.4787]}          "Yes"
-%     {[   9.8214 14.4286]}           "Yes"            {[ 0.0859 16.8085]}          "Yes"
-%     {[  -0.6688 58.8910]}           "Yes"            {[-0.9686 32.4924]}          "Yes"
-%     {[  -4.7649 22.4899]}           "Yes"            {[  6.1918 9.4608]}          "No"
-%     {[  -1.3668 14.4214]}           "Yes"            {[-4.5856 21.3856]}          "Yes"
-%     {[-16.4657 127.9657]}           "Yes"            {[-8.3060 90.4685]}          "Yes"
-
-
 % General Agreement:
 % - Setups 1, 2, 3, 5, and 6 accept H0 in both conditions (with and without TMS),
 %   indicating that their mean values do not significantly differ from μ0.
 % - Setup 4 rejects H0 for the TMS condition, suggesting a potential effect of TMS.
 
 % Variance Differences:
-% - Setups 3 and 6 have exceptionally large confidence intervals,
+% - Setups 1, 3 and 6 have exceptionally large confidence intervals,
 %   which reduces the reliability of the conclusions.
 % - This is likely due to small sample sizes or high variability in the data.
 
 % Overall TMS Effect:
-% - TMS does not appear to significantly affect the mean ED durations in most setups.
-% - However, in Setup 4, a notable reduction in the mean duration is observed.
+% - TMS does not appear to significantly affect the mean ED durations in most setups
 
 % Data Issues:
-% - Negative bounds in Setups 3, 5, and 6 indicate that the analysis might require
-%   more data or a different approach (e.g., one-sided hypothesis testing).
+% - Negative bounds in some Setups indicate that the analysis might require more data.
+% - With more data, the fit may improve, leading to smaller variance.
