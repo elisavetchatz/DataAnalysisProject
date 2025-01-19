@@ -38,7 +38,7 @@ X = zscore(X);
 my = mean(EDduration);
 y = EDduration - my;
 fprintf('Model with preTMS variables\n');
-compare_models(X, y);
+Group40Exe8Fun(X, y);
 
 %% Add postTMS as an independent variable
 % Select variables

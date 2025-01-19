@@ -42,7 +42,7 @@ Y_train = EDduration(train_idx);
 X_test = indepedent_vars(test_idx, :);
 Y_test = EDduration(test_idx);
 
-% Normalization
+% Center the data
 mx_train = mean(X_train);
 X_train = X_train - mx_train;
 Y_train = Y_train - mean(Y_train);
@@ -60,9 +60,9 @@ Y_pred_full = predict(lm_full, X_test);
 mse_full = mean((Y_test - Y_pred_full).^2);
 
 % Stepwise Regression
-lm_stepwise_train = stepwiselm(X_full, Y_full,'Verbose', 0);
-Y_pred_stepwise_train = predict(lm_stepwise_train, X_test);
-mse_stepwise_train = mean((Y_test - Y_pred_stepwise_train).^2);
+lm_stepwise = stepwiselm(X_full, Y_full,'Verbose', 0);
+Y_pred_stepwise = predict(lm_stepwise, X_test);
+mse_stepwise = mean((Y_test - Y_pred_stepwise).^2);
 
 % LASSO Model
 [beta, fitinfo] = lasso(X_full, Y_full, 'CV', 10);
@@ -77,7 +77,7 @@ mse_lasso = mean((Y_test - yfitLASSOV).^2);
 
 % Display Results
 results_table = table({'Full Model'; 'Stepwise Model'; 'LASSO Model'}, ...
-                      [mse_full; mse_stepwise_train; mse_lasso], ...
+                      [mse_full; mse_stepwise; mse_lasso], ...
                       'VariableNames', {'Model', 'MSE'});
 disp('Model Comparison Results (Initial Variable Selection):');
 disp(results_table);
@@ -86,7 +86,7 @@ disp(results_table);
 % Stepwise Model with Training Selection
 lm_stepwise_train = stepwiselm(X_train, Y_train, 'Verbose', 0);
 Y_pred_stepwise_train = predict(lm_stepwise_train, X_test);
-mse_stepwise_train = mean((Y_test - Y_pred_stepwise_train).^2);
+mse_stepwise_refit = mean((Y_test - Y_pred_stepwise_train).^2);
 
 % LASSO Model with Training Selection
 [beta_train, fitinfo_train] = lasso(X_train, Y_train, 'CV', 10);

@@ -1,9 +1,16 @@
 %Group40Exe1
 
+% This project assumes that the data file TMS.xlsx is located in the parent folder of the current script.
+% If the file is not found in the parent folder, you need to set the path manually.
+% To set the path manually, change the value of the variable data_path to the full path of the TMS.xlsx file.
+
 % Read the data from the file
 current_file_path = mfilename('fullpath');
 [parent_folder, ~, ~] = fileparts(fileparts(current_file_path));
 data_path = fullfile(parent_folder, 'TMS.xlsx');
+% Set the path manually if the file is not in the parent folder
+% data_path = 'path/to/TMS.xlsx';
+
 if ~exist(data_path, 'file')
     error('The file TMS.xlsx does not exist in the specified path: %s', data_path);
 end
