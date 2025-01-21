@@ -59,6 +59,7 @@ r2_stepwise_adj = lm_stepwise.Rsquared.Adjusted;
 rng(seed_value); 
 [beta, fitinfo] = lasso(X, y, 'CV', 10);
 lambda_optimal = fitinfo.LambdaMinMSE;
+disp('Optimal Lambda with Spike:');
 disp(lambda_optimal);
 [~, ilmin] = min(abs(fitinfo.Lambda - lambda_optimal));
 bLASSOV = beta(:, ilmin);
